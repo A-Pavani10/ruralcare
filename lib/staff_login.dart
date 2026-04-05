@@ -28,7 +28,6 @@ class _StaffLoginScreenState extends State<StaffLoginScreen> {
       );
       return;
     }
-    // Look up staff by username in staffList
     final match = AppData.staffList.firstWhere(
       (s) => s['name']?.toLowerCase() ==
           _usernameCtrl.text.trim().toLowerCase(),
@@ -43,10 +42,9 @@ class _StaffLoginScreenState extends State<StaffLoginScreen> {
       AppData.staffRole = '';
       AppData.staffMobile = '';
     }
-    Navigator.pushAndRemoveUntil(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => StaffDashboard()),
-      (route) => false,
     );
   }
 

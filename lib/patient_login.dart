@@ -27,12 +27,10 @@ class _PatientLoginScreenState extends State<PatientLoginScreen> {
       );
       return;
     }
-    // Save mobile to AppData for profile display
     AppData.patientMobile = _mobileCtrl.text.trim();
-    Navigator.pushAndRemoveUntil(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => PatientDashboard()),
-      (route) => false,
     );
   }
 
@@ -64,8 +62,7 @@ class _PatientLoginScreenState extends State<PatientLoginScreen> {
                   Expanded(
                     child: Text(
                       'Enter your registered mobile number. OTP will only be sent if you are on a new device.',
-                      style:
-                          TextStyle(fontSize: 13, color: Colors.blue[800]),
+                      style: TextStyle(fontSize: 13, color: Colors.blue[800]),
                     ),
                   ),
                 ],
@@ -123,8 +120,7 @@ class _PatientLoginScreenState extends State<PatientLoginScreen> {
               child: TextButton(
                 onPressed: () => Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => PatientRegisterScreen()),
+                  MaterialPageRoute(builder: (_) => PatientRegisterScreen()),
                 ),
                 child: Text(
                   translations[lang]!['new_user_register']!,

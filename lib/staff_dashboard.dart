@@ -4,6 +4,7 @@ import 'translations.dart';
 import 'staff_incoming.dart';
 import 'staff_my_tasks.dart';
 import 'staff_profile.dart';
+import 'role_screen.dart';
 
 class StaffDashboard extends StatefulWidget {
   @override
@@ -60,8 +61,9 @@ class _StaffHomeTab extends StatelessWidget {
     int myTasksCount = AppData.myTasks.length;
     int pending =
         AppData.myTasks.where((t) => t['status'] == 'Pending').length;
-    String name =
-        AppData.staffName.isEmpty ? translations[lang]!['staff']! : AppData.staffName;
+    String name = AppData.staffName.isEmpty
+        ? translations[lang]!['staff']!
+        : AppData.staffName;
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -69,6 +71,40 @@ class _StaffHomeTab extends StatelessWidget {
         backgroundColor: Color(0xFF1A7A55),
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: Text('Logout'),
+                content: Text('Are you sure you want to logout?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF1A7A55),
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      AppData.clearStaff();
+                      Navigator.pop(context); // close dialog
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => RoleScreen()),
+                        (route) => false,
+                      );
+                    },
+                    child: Text('Logout'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -112,8 +148,7 @@ class _StaffHomeTab extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Inform doctors verbally after claiming. No doctor login in the app.',
-                      style: TextStyle(
-                          color: Colors.amber[900], fontSize: 13),
+                      style: TextStyle(color: Colors.amber[900], fontSize: 13),
                     ),
                   ),
                 ],
@@ -180,8 +215,7 @@ class _StaffHomeTab extends StatelessWidget {
             Text(emoji, style: TextStyle(fontSize: 28)),
             SizedBox(height: 6),
             Text(label,
-                style:
-                    TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
           ],
         ),
       ),

@@ -39,14 +39,12 @@ class _PatientRegisterScreenState extends State<PatientRegisterScreen> {
       );
       return;
     }
-    // Save entered data to AppData
     AppData.patientFirstName = _firstNameCtrl.text.trim();
     AppData.patientLastName = _lastNameCtrl.text.trim();
     AppData.patientMobile = _mobileCtrl.text.trim();
     AppData.patientAadhaar = _aadhaarCtrl.text.trim();
     AppData.patientLocation = _locationCtrl.text.trim();
 
-    // Also add to admin patients list
     AppData.patients.add({
       'name': AppData.patientFullName,
       'mobile': AppData.patientMobile,
@@ -54,10 +52,9 @@ class _PatientRegisterScreenState extends State<PatientRegisterScreen> {
       'requests': '0',
     });
 
-    Navigator.pushAndRemoveUntil(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => PatientDashboard()),
-      (route) => false,
     );
   }
 
@@ -113,8 +110,7 @@ class _PatientRegisterScreenState extends State<PatientRegisterScreen> {
                   Expanded(
                     child: Text(
                       'Register once with your Aadhaar. Name, mobile & Aadhaar are linked to create your account.',
-                      style: TextStyle(
-                          fontSize: 13, color: Colors.green[800]),
+                      style: TextStyle(fontSize: 13, color: Colors.green[800]),
                     ),
                   ),
                 ],

@@ -4,6 +4,7 @@ import 'translations.dart';
 import 'patient_services.dart';
 import 'patient_requests.dart';
 import 'patient_profile.dart';
+import 'patient_entry.dart';
 
 class PatientDashboard extends StatefulWidget {
   @override
@@ -76,7 +77,6 @@ class _PatientHomeTab extends StatelessWidget {
     int total = requests.length;
     int accepted = requests.where((r) => r['status'] == 'Accepted').length;
     int pending = requests.where((r) => r['status'] == 'Pending').length;
-    // Show only last 3 as recent activity
     final recent = requests.reversed.take(3).toList();
 
     return Scaffold(
@@ -85,6 +85,40 @@ class _PatientHomeTab extends StatelessWidget {
         backgroundColor: Color(0xFF1A7A55),
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: Text('Logout'),
+                content: Text('Are you sure you want to logout?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF1A7A55),
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      AppData.clearPatient();
+                      Navigator.pop(context); // close dialog
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => PatientEntryScreen()),
+                        (route) => false,
+                      );
+                    },
+                    child: Text('Logout'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -116,8 +150,7 @@ class _PatientHomeTab extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Text(translations[lang]!['quick_actions']!,
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             SizedBox(height: 12),
             Row(
               children: [
@@ -135,8 +168,7 @@ class _PatientHomeTab extends StatelessWidget {
             ),
             SizedBox(height: 20),
             Text(translations[lang]!['recent_activity']!,
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             SizedBox(height: 12),
             if (recent.isEmpty)
               _emptyState(translations[lang]!['no_requests']!)
@@ -189,8 +221,7 @@ class _PatientHomeTab extends StatelessWidget {
             Text(emoji, style: TextStyle(fontSize: 28)),
             SizedBox(height: 6),
             Text(label,
-                style:
-                    TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -217,8 +248,7 @@ class _PatientHomeTab extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.w600)),
                 SizedBox(height: 4),
                 Text(item['time'] ?? '',
-                    style:
-                        TextStyle(color: Colors.grey[600], fontSize: 12)),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12)),
               ],
             ),
           ),
