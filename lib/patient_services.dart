@@ -18,13 +18,11 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
   void _book(String serviceName) {
     setState(() {
       AppData.serviceStatuses[serviceName] = 'Pending';
-      // Add to requests list
       AppData.patientRequests.add({
         'service': serviceName,
         'time': _now(),
         'status': 'Pending',
       });
-      // Also push to shared incoming pool for staff
       AppData.incomingRequests.add({
         'patient': AppData.patientFullName.isEmpty
             ? 'Patient'
@@ -85,7 +83,7 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
   @override
   Widget build(BuildContext context) {
     String lang = AppData.selectedLanguage;
-    final services = AppData.services;
+    final List<Map<String, String>> services = AppData.services;
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -128,7 +126,7 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
                       border: TableBorder.all(
                           color: Colors.grey[300]!,
                           borderRadius: BorderRadius.circular(8)),
-                      columnWidths: {
+                      columnWidths: const {
                         0: FlexColumnWidth(3),
                         1: FlexColumnWidth(2),
                         2: FlexColumnWidth(1.5),
@@ -144,11 +142,14 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
                             _th(translations[lang]!['cancel']!),
                           ],
                         ),
-                        ...services.map((svcName) {
-                          String? status = AppData.serviceStatuses[svcName];
-                          bool hasStatus = status != null;
+                        ...services.map((Map<String, String> svc) {
+                          final String svcName = svc['name'] ?? '';
+                          final String? status =
+                              AppData.serviceStatuses[svcName];
+                          final bool hasStatus = status != null;
                           return TableRow(
-                            decoration: BoxDecoration(color: Colors.white),
+                            decoration:
+                                BoxDecoration(color: Colors.white),
                             children: [
                               Padding(
                                 padding: EdgeInsets.all(10),
@@ -182,7 +183,8 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
                                             BorderRadius.circular(6)),
                                   ),
                                   onPressed: () => _book(svcName),
-                                  child: Text(translations[lang]!['book']!),
+                                  child:
+                                      Text(translations[lang]!['book']!),
                                 ),
                               ),
                               Padding(
@@ -203,8 +205,9 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
                                         borderRadius:
                                             BorderRadius.circular(6)),
                                   ),
-                                  onPressed:
-                                      hasStatus ? () => _cancel(svcName) : null,
+                                  onPressed: hasStatus
+                                      ? () => _cancel(svcName)
+                                      : null,
                                   child:
                                       Text(translations[lang]!['cancel']!),
                                 ),
@@ -224,7 +227,8 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
   Widget _th(String text) => Padding(
         padding: EdgeInsets.all(10),
         child: Text(text,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            style:
+                TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
       );
 
   Widget _emptyState(String msg) => Center(
@@ -234,10 +238,12 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
             Icon(Icons.medical_services_outlined,
                 size: 56, color: Colors.grey[400]),
             SizedBox(height: 12),
-            Text(msg, style: TextStyle(color: Colors.grey[500], fontSize: 15)),
+            Text(msg,
+                style: TextStyle(color: Colors.grey[500], fontSize: 15)),
             SizedBox(height: 6),
             Text('Admin will add services soon.',
-                style: TextStyle(color: Colors.grey[400], fontSize: 13)),
+                style:
+                    TextStyle(color: Colors.grey[400], fontSize: 13)),
           ],
         ),
       );

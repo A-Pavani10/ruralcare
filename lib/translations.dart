@@ -98,6 +98,16 @@ Map<String, Map<String, String>> translations = {
     "waiting_for_staff": "Waiting for staff",
     "not_yet_claimed": "Not yet claimed",
     "claimed_by": "Claimed by",
+    // New admin keys
+    "admin_info": "Admin access only. Manages patients, staff & services.",
+    "admin_note":
+        "Admin monitors only. Doctors not in app — staff informs verbally.",
+    "patients_info":
+        "View all patient details and request history. Read-only access.",
+    "staff_info":
+        "No doctor accounts. Staff informs doctors verbally after claiming a request.",
+    "monitor_info":
+        "Admin monitors only. Cannot accept or reject — that is staff's job.",
   },
   "te": {
     "choose_language": "భాషను ఎంచుకోండి",
@@ -198,6 +208,16 @@ Map<String, Map<String, String>> translations = {
     "waiting_for_staff": "సిబ్బంది కోసం వేచి ఉంది",
     "not_yet_claimed": "ఇంకా క్లెయిమ్ కాలేదు",
     "claimed_by": "క్లెయిమ్ చేసినవారు",
+    // New admin keys
+    "admin_info": "అడ్మిన్ మాత్రమే. రోగులు, సిబ్బంది & సేవలను నిర్వహిస్తారు.",
+    "admin_note":
+        "అడ్మిన్ పర్యవేక్షిస్తారు మాత్రమే. వైద్యులు యాప్‌లో లేరు — సిబ్బంది మౌఖికంగా తెలియజేస్తారు.",
+    "patients_info":
+        "రోగి వివరాలు మరియు అభ్యర్థన చరిత్రను చూడండి. చదవడానికి మాత్రమే.",
+    "staff_info":
+        "వైద్యుల ఖాతాలు లేవు. సిబ్బంది అభ్యర్థన క్లెయిమ్ చేసిన తర్వాత వైద్యులకు మౌఖికంగా తెలియజేస్తారు.",
+    "monitor_info":
+        "అడ్మిన్ పర్యవేక్షిస్తారు మాత్రమే. అంగీకరించడం లేదా తిరస్కరించడం సిబ్బంది పని.",
   },
   "hi": {
     "choose_language": "भाषा चुनें",
@@ -298,6 +318,16 @@ Map<String, Map<String, String>> translations = {
     "waiting_for_staff": "स्टाफ का इंतज़ार",
     "not_yet_claimed": "अभी तक दावा नहीं किया गया",
     "claimed_by": "दावा किया गया",
+    // New admin keys
+    "admin_info": "केवल एडमिन। मरीज, स्टाफ और सेवाओं का प्रबंधन करता है।",
+    "admin_note":
+        "एडमिन केवल निगरानी करता है। डॉक्टर ऐप में नहीं — स्टाफ मौखिक रूप से सूचित करता है।",
+    "patients_info":
+        "सभी मरीज विवरण और अनुरोध इतिहास देखें। केवल पढ़ने की अनुमति।",
+    "staff_info":
+        "कोई डॉक्टर खाता नहीं। स्टाफ अनुरोध दावा करने के बाद डॉक्टरों को मौखिक रूप से सूचित करता है।",
+    "monitor_info":
+        "एडमिन केवल निगरानी करता है। स्वीकार या अस्वीकार नहीं कर सकता — यह स्टाफ का काम है।",
   },
   "ta": {
     "choose_language": "மொழியைத் தேர்ந்தெடுக்கவும்",
@@ -398,6 +428,17 @@ Map<String, Map<String, String>> translations = {
     "waiting_for_staff": "ஊழியர்களுக்காக காத்திருக்கிறது",
     "not_yet_claimed": "இன்னும் கோரப்படவில்லை",
     "claimed_by": "கோரியவர்",
+    // New admin keys
+    "admin_info":
+        "நிர்வாகி மட்டும். நோயாளிகள், ஊழியர்கள் & சேவைகளை நிர்வகிக்கிறது.",
+    "admin_note":
+        "நிர்வாகி கண்காணிக்கிறார் மட்டும். மருத்துவர்கள் பயன்பாட்டில் இல்லை — ஊழியர்கள் வாய்மொழியாக தெரிவிக்கின்றனர்.",
+    "patients_info":
+        "அனைத்து நோயாளர் விவரங்கள் மற்றும் கோரிக்கை வரலாற்றைப் பார்க்கவும். படிக்க மட்டும்.",
+    "staff_info":
+        "மருத்துவர் கணக்குகள் இல்லை. ஊழியர்கள் கோரிக்கையை கோரிய பிறகு மருத்துவர்களுக்கு வாய்மொழியாக தெரிவிக்கின்றனர்.",
+    "monitor_info":
+        "நிர்வாகி கண்காணிக்கிறார் மட்டும். ஏற்க அல்லது நிராகரிக்க முடியாது — அது ஊழியர்களின் வேலை.",
   },
   "kn": {
     "choose_language": "ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ",
@@ -405,7 +446,8 @@ Map<String, Map<String, String>> translations = {
     "patient": "ರೋಗಿ",
     "staff": "ಆಸ್ಪತ್ರೆ ಸಿಬ್ಬಂದಿ",
     "admin": "ನಿರ್ವಾಹಕ",
-    "patient_desc": "ಆಸ್ಪತ್ರೆ ಸೇವೆಗಳನ್ನು ಬುಕ್ ಮಾಡಿ ಮತ್ತು ವಿನಂತಿಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ",
+    "patient_desc":
+        "ಆಸ್ಪತ್ರೆ ಸೇವೆಗಳನ್ನು ಬುಕ್ ಮಾಡಿ ಮತ್ತು ವಿನಂತಿಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ",
     "staff_desc": "ರೋಗಿಗಳ ವಿನಂತಿಗಳನ್ನು ನೋಡಿ ಮತ್ತು ನಿರ್ವಹಿಸಿ",
     "admin_desc": "ರೋಗಿಗಳು, ಸಿಬ್ಬಂದಿ ಮತ್ತು ಸೇವೆಗಳನ್ನು ನಿರ್ವಹಿಸಿ",
     "login": "ಲಾಗಿನ್",
@@ -498,5 +540,16 @@ Map<String, Map<String, String>> translations = {
     "waiting_for_staff": "ಸಿಬ್ಬಂದಿಗಾಗಿ ಕಾಯುತ್ತಿದೆ",
     "not_yet_claimed": "ಇನ್ನೂ ಕ್ಲೈಮ್ ಮಾಡಿಲ್ಲ",
     "claimed_by": "ಕ್ಲೈಮ್ ಮಾಡಿದವರು",
+    // New admin keys
+    "admin_info":
+        "ನಿರ್ವಾಹಕ ಮಾತ್ರ. ರೋಗಿಗಳು, ಸಿಬ್ಬಂದಿ & ಸೇವೆಗಳನ್ನು ನಿರ್ವಹಿಸುತ್ತದೆ.",
+    "admin_note":
+        "ನಿರ್ವಾಹಕ ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡುತ್ತಾರೆ ಮಾತ್ರ. ವೈದ್ಯರು ಅಪ್ಲಿಕೇಶನ್‌ನಲ್ಲಿ ಇಲ್ಲ — ಸಿಬ್ಬಂದಿ ಮೌಖಿಕವಾಗಿ ತಿಳಿಸುತ್ತಾರೆ.",
+    "patients_info":
+        "ಎಲ್ಲಾ ರೋಗಿಗಳ ವಿವರ ಮತ್ತು ವಿನಂತಿ ಇತಿಹಾಸ ನೋಡಿ. ಓದಲು ಮಾತ್ರ.",
+    "staff_info":
+        "ವೈದ್ಯರ ಖಾತೆಗಳು ಇಲ್ಲ. ಸಿಬ್ಬಂದಿ ವಿನಂತಿ ಕ್ಲೈಮ್ ಮಾಡಿದ ನಂತರ ವೈದ್ಯರಿಗೆ ಮೌಖಿಕವಾಗಿ ತಿಳಿಸುತ್ತಾರೆ.",
+    "monitor_info":
+        "ನಿರ್ವಾಹಕ ಮೇಲ್ವಿಚಾರಣೆ ಮಾತ್ರ. ಒಪ್ಪಿಕೊಳ್ಳಲು ಅಥವಾ ತಿರಸ್ಕರಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ — ಅದು ಸಿಬ್ಬಂದಿ ಕೆಲಸ.",
   },
 };

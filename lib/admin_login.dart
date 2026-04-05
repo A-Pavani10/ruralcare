@@ -28,10 +28,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       );
       return;
     }
-    Navigator.pushAndRemoveUntil(
+    // Save admin name for display in dashboard AppBar
+    AppData.adminName = _usernameCtrl.text.trim();
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => AdminDashboard()),
-      (route) => false,
     );
   }
 
@@ -39,6 +40,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   Widget build(BuildContext context) {
     String lang = AppData.selectedLanguage;
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Color(0xFF1A7A55),
         foregroundColor: Colors.white,
@@ -49,66 +51,109 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20),
-            Center(child: Text('🛡️', style: TextStyle(fontSize: 52))),
-            SizedBox(height: 16),
+            SizedBox(height: 12),
+            // Info banner matching screenshot style
             Container(
-              padding: EdgeInsets.all(12),
+              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
-                color: Colors.purple[50],
-                borderRadius: BorderRadius.circular(8),
+                color: Colors.blue[50],
+                border: Border(left: BorderSide(color: Color(0xFF1A7A55), width: 4)),
               ),
-              child: Text(
-                'Admin access only. Manages patients, staff & services.',
-                style:
-                    TextStyle(fontSize: 13, color: Colors.purple[800]),
-                textAlign: TextAlign.center,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('🛡️', style: TextStyle(fontSize: 18)),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      translations[lang]!['admin_info'] ??
+                          'Admin access only. Manages patients, staff & services.',
+                      style: TextStyle(fontSize: 13, color: Colors.blue[900]),
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 28),
-            Text(translations[lang]!['username']!,
-                style: TextStyle(fontWeight: FontWeight.w600)),
-            SizedBox(height: 8),
-            TextField(
-              controller: _usernameCtrl,
-              decoration: InputDecoration(
-                hintText: 'Enter admin username',
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
+            // Login card
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
               ),
-            ),
-            SizedBox(height: 20),
-            Text(translations[lang]!['password']!,
-                style: TextStyle(fontWeight: FontWeight.w600)),
-            SizedBox(height: 8),
-            TextField(
-              controller: _passwordCtrl,
-              obscureText: _obscure,
-              decoration: InputDecoration(
-                hintText: 'Enter password',
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                      _obscure ? Icons.visibility_off : Icons.visibility),
-                  onPressed: () => setState(() => _obscure = !_obscure),
-                ),
-              ),
-            ),
-            SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF1A7A55),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-                onPressed: _login,
-                child: Text(translations[lang]!['login_as_admin']!,
-                    style: TextStyle(fontSize: 16)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    translations[lang]!['username']!.toUpperCase(),
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[600],
+                        letterSpacing: 0.8),
+                  ),
+                  SizedBox(height: 8),
+                  TextField(
+                    controller: _usernameCtrl,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    translations[lang]!['password']!.toUpperCase(),
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[600],
+                        letterSpacing: 0.8),
+                  ),
+                  SizedBox(height: 8),
+                  TextField(
+                    controller: _passwordCtrl,
+                    obscureText: _obscure,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFF1A7A55)),
+                          borderRadius: BorderRadius.circular(10)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Color(0xFF1A7A55), width: 2),
+                          borderRadius: BorderRadius.circular(10)),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                            _obscure ? Icons.visibility_off : Icons.visibility,
+                            color: Colors.grey),
+                        onPressed: () =>
+                            setState(() => _obscure = !_obscure),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF1A7A55),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30)),
+                        textStyle: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: _login,
+                      child: Text(translations[lang]!['login_as_admin']!),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -117,4 +162,3 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     );
   }
 }
-

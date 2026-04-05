@@ -2,6 +2,9 @@
 class AppData {
   static String selectedLanguage = "en";
 
+  // Admin info
+  static String adminName = "Admin";
+
   // Logged-in patient info (filled after register/login)
   static String patientFirstName = "";
   static String patientLastName = "";
@@ -31,10 +34,11 @@ class AppData {
   static List<Map<String, String>> patients = [];
 
   // Admin: list of staff members
+  // Each staff: { 'name', 'role', 'mobile', 'username', 'password' }
   static List<Map<String, String>> staffList = [];
 
-  // Admin: list of services
-  static List<String> services = [];
+  // Admin: list of services (each: { 'name', 'status' })
+  static List<Map<String, String>> services = [];
 
   // Admin: all requests for monitoring
   static List<Map<String, dynamic>> allRequests = [];
@@ -60,6 +64,33 @@ class AppData {
     }
     return "";
   }
+
+  // Helper: initials from any name string
+  static String initialsFrom(String name) {
+    List<String> parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    } else if (parts.length == 1 && parts[0].isNotEmpty) {
+      return parts[0][0].toUpperCase();
+    }
+    return "?";
+  }
+
+  // Helper: color for avatar based on name
+  static const List<int> _avatarColors = [
+    0xFF4CAF50, 0xFF2196F3, 0xFFFF9800,
+    0xFF9C27B0, 0xFFE91E63, 0xFF00BCD4,
+  ];
+  static int avatarColor(String name) {
+    if (name.isEmpty) return _avatarColors[0];
+    return _avatarColors[name.codeUnitAt(0) % _avatarColors.length];
+  }
+
+  // Stats helpers
+  static int get todayRequestCount => allRequests.length;
+  static int get activeStaffCount =>
+      staffList.where((s) => s['status'] != 'inactive').length;
+  static int get totalPatientCount => patients.length;
 
   static void clearPatient() {
     patientFirstName = "";

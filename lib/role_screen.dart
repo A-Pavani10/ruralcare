@@ -6,46 +6,60 @@ import 'staff_login.dart';
 import 'admin_login.dart';
 
 class RoleScreen extends StatelessWidget {
+  const RoleScreen({super.key}); // ✅ FIX 1: add constructor
+
   @override
   Widget build(BuildContext context) {
     String lang = AppData.selectedLanguage;
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
+
       appBar: AppBar(
-        backgroundColor: Color(0xFF1A7A55),
+        backgroundColor: const Color(0xFF1A7A55),
         foregroundColor: Colors.white,
         title: Text(translations[lang]!['who_are_you']!),
       ),
+
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16), // ✅ FIX 2: const
         child: Column(
           children: [
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
+
             _roleCard(
               emoji: '🧑',
               title: translations[lang]!['patient']!,
               subtitle: translations[lang]!['patient_desc']!,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => PatientEntryScreen()),
+                MaterialPageRoute(
+                  builder: (_) =>  PatientEntryScreen(), // ✅ FIX 3
+                ),
               ),
             ),
+
             _roleCard(
               emoji: '👨‍⚕️',
               title: translations[lang]!['staff']!,
               subtitle: translations[lang]!['staff_desc']!,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => StaffLoginScreen()),
+                MaterialPageRoute(
+                  builder: (_) =>  StaffLoginScreen(), // ✅ FIX 3
+                ),
               ),
             ),
+
             _roleCard(
               emoji: '🛡️',
               title: translations[lang]!['admin']!,
               subtitle: translations[lang]!['admin_desc']!,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => AdminLoginScreen()),
+                MaterialPageRoute(
+                  builder: (_) =>  AdminLoginScreen(), // ✅ FIX 3
+                ),
               ),
             ),
           ],
@@ -63,37 +77,52 @@ class RoleScreen extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.only(bottom: 16),
-        padding: EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 5, offset: Offset(0, 3))
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            )
           ],
         ),
         child: Row(
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundColor: Color(0xFF1A7A55).withOpacity(0.1),
-              child: Text(emoji, style: TextStyle(fontSize: 26)),
+              backgroundColor: const Color(0xFF1A7A55).withOpacity(0.1),
+              child: Text(emoji, style: const TextStyle(fontSize: 26)),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 4),
-                  Text(subtitle,
-                      style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 13,
+                    ),
+                  ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Colors.grey),
+
+            const Icon(Icons.chevron_right, color: Colors.grey),
           ],
         ),
       ),
