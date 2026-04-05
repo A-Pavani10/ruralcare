@@ -28,8 +28,7 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
               autofocus: true,
               decoration: InputDecoration(
                 hintText: 'e.g. Ambulance Van',
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               ),
@@ -56,8 +55,7 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
                 return;
               }
               setState(() {
-                AppData.services
-                    .add({'name': name, 'status': 'Active'});
+                AppData.services.add({'name': name, 'status': 'Active'});
                 AppData.serviceStatuses.putIfAbsent(name, () => null);
               });
               Navigator.pop(context);
@@ -146,7 +144,6 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
                       ),
                       child: Column(
                         children: [
-                          // Table header
                           Container(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
@@ -191,7 +188,6 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
                             ),
                           ),
                           Divider(height: 1),
-                          // Table rows
                           ...services.asMap().entries.map((entry) {
                             final int idx = entry.key;
                             final Map<String, String> svc = entry.value;
@@ -206,12 +202,10 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
                                     children: [
                                       Expanded(
                                         flex: 3,
-                                        child: Text(
-                                          svcName,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14),
-                                        ),
+                                        child: Text(svcName,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14)),
                                       ),
                                       Expanded(
                                         flex: 2,
@@ -223,20 +217,17 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
                                             borderRadius:
                                                 BorderRadius.circular(20),
                                           ),
-                                          child: Text(
-                                            svcStatus,
-                                            style: TextStyle(
-                                                color: Colors.green[700],
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 12),
-                                          ),
+                                          child: Text(svcStatus,
+                                              style: TextStyle(
+                                                  color: Colors.green[700],
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 12)),
                                         ),
                                       ),
                                       Expanded(
                                         flex: 2,
                                         child: ElevatedButton(
-                                          onPressed: () =>
-                                              _removeService(idx),
+                                          onPressed: () => _removeService(idx),
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.red,
                                             foregroundColor: Colors.white,
@@ -245,8 +236,7 @@ class _AdminServicesScreenState extends State<AdminServicesScreen> {
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(20)),
-                                            textStyle:
-                                                TextStyle(fontSize: 13),
+                                            textStyle: TextStyle(fontSize: 13),
                                           ),
                                           child: Text(
                                               translations[lang]!['remove']!),

@@ -59,8 +59,7 @@ class _StaffHomeTab extends StatelessWidget {
     String lang = AppData.selectedLanguage;
     int allReqs = AppData.incomingRequests.length;
     int myTasksCount = AppData.myTasks.length;
-    int pending =
-        AppData.myTasks.where((t) => t['status'] == 'Pending').length;
+    int pending = AppData.myTasks.where((t) => t['status'] == 'Pending').length;
     String name = AppData.staffName.isEmpty
         ? translations[lang]!['staff']!
         : AppData.staffName;
@@ -81,17 +80,15 @@ class _StaffHomeTab extends StatelessWidget {
                 content: Text('Are you sure you want to logout?'),
                 actions: [
                   TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text('Cancel'),
-                  ),
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Cancel')),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF1A7A55),
-                      foregroundColor: Colors.white,
-                    ),
+                        backgroundColor: Color(0xFF1A7A55),
+                        foregroundColor: Colors.white),
                     onPressed: () {
                       AppData.clearStaff();
-                      Navigator.pop(context); // close dialog
+                      Navigator.pop(context);
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (_) => RoleScreen()),
@@ -128,8 +125,8 @@ class _StaffHomeTab extends StatelessWidget {
                 _statCard('$myTasksCount',
                     translations[lang]!['my_tasks_count']!, Colors.teal),
                 SizedBox(width: 10),
-                _statCard(
-                    '$pending', translations[lang]!['pending']!, Colors.orange),
+                _statCard('$pending', translations[lang]!['pending']!,
+                    Colors.orange),
               ],
             ),
             SizedBox(height: 16),
@@ -187,9 +184,7 @@ class _StaffHomeTab extends StatelessWidget {
           children: [
             Text(value,
                 style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: color)),
+                    fontSize: 24, fontWeight: FontWeight.bold, color: color)),
             SizedBox(height: 4),
             Text(label,
                 style: TextStyle(fontSize: 11, color: Colors.grey[600]),

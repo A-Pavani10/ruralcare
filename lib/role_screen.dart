@@ -6,7 +6,7 @@ import 'staff_login.dart';
 import 'admin_login.dart';
 
 class RoleScreen extends StatelessWidget {
-  const RoleScreen({super.key}); // ✅ FIX 1: add constructor
+  const RoleScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,52 +14,42 @@ class RoleScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A7A55),
         foregroundColor: Colors.white,
         title: Text(translations[lang]!['who_are_you']!),
+        // Flutter auto-shows back arrow to language_screen
       ),
-
       body: Padding(
-        padding: const EdgeInsets.all(16), // ✅ FIX 2: const
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             const SizedBox(height: 8),
-
             _roleCard(
               emoji: '🧑',
               title: translations[lang]!['patient']!,
               subtitle: translations[lang]!['patient_desc']!,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) =>  PatientEntryScreen(), // ✅ FIX 3
-                ),
+                MaterialPageRoute(builder: (_) => PatientEntryScreen()),
               ),
             ),
-
             _roleCard(
               emoji: '👨‍⚕️',
               title: translations[lang]!['staff']!,
               subtitle: translations[lang]!['staff_desc']!,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) =>  StaffLoginScreen(), // ✅ FIX 3
-                ),
+                MaterialPageRoute(builder: (_) => StaffLoginScreen()),
               ),
             ),
-
             _roleCard(
               emoji: '🛡️',
               title: translations[lang]!['admin']!,
               subtitle: translations[lang]!['admin_desc']!,
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) =>  AdminLoginScreen(), // ✅ FIX 3
-                ),
+                MaterialPageRoute(builder: (_) => AdminLoginScreen()),
               ),
             ),
           ],
@@ -83,11 +73,7 @@ class RoleScreen extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            )
+            BoxShadow(color: Colors.black12, blurRadius: 5, offset: Offset(0, 3))
           ],
         ),
         child: Row(
@@ -98,30 +84,19 @@ class RoleScreen extends StatelessWidget {
               child: Text(emoji, style: const TextStyle(fontSize: 26)),
             ),
             const SizedBox(width: 16),
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 13,
-                    ),
-                  ),
+                  Text(subtitle,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 13)),
                 ],
               ),
             ),
-
             const Icon(Icons.chevron_right, color: Colors.grey),
           ],
         ),

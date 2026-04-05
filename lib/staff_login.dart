@@ -21,16 +21,14 @@ class _StaffLoginScreenState extends State<StaffLoginScreen> {
   }
 
   void _login() {
-    if (_usernameCtrl.text.trim().isEmpty ||
-        _passwordCtrl.text.trim().isEmpty) {
+    if (_usernameCtrl.text.trim().isEmpty || _passwordCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter username and password')),
       );
       return;
     }
     final match = AppData.staffList.firstWhere(
-      (s) => s['name']?.toLowerCase() ==
-          _usernameCtrl.text.trim().toLowerCase(),
+      (s) => s['name']?.toLowerCase() == _usernameCtrl.text.trim().toLowerCase(),
       orElse: () => {},
     );
     if (match.isNotEmpty) {
@@ -56,6 +54,7 @@ class _StaffLoginScreenState extends State<StaffLoginScreen> {
         backgroundColor: Color(0xFF1A7A55),
         foregroundColor: Colors.white,
         title: Text(translations[lang]!['staff_login']!),
+        // Flutter auto-shows back arrow to role_screen
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24),
@@ -85,8 +84,7 @@ class _StaffLoginScreenState extends State<StaffLoginScreen> {
               controller: _usernameCtrl,
               decoration: InputDecoration(
                 hintText: 'Enter username',
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
             SizedBox(height: 20),
@@ -98,11 +96,9 @@ class _StaffLoginScreenState extends State<StaffLoginScreen> {
               obscureText: _obscure,
               decoration: InputDecoration(
                 hintText: 'Enter password',
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 suffixIcon: IconButton(
-                  icon: Icon(
-                      _obscure ? Icons.visibility_off : Icons.visibility),
+                  icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
                   onPressed: () => setState(() => _obscure = !_obscure),
                 ),
               ),

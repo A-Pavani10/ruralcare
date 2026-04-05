@@ -5,14 +5,14 @@ class AppData {
   // Admin info
   static String adminName = "Admin";
 
-  // Logged-in patient info (filled after register/login)
+  // Logged-in patient info
   static String patientFirstName = "";
   static String patientLastName = "";
   static String patientMobile = "";
   static String patientAadhaar = "";
   static String patientLocation = "";
 
-  // Logged-in staff info (filled after staff login)
+  // Logged-in staff info
   static String staffName = "";
   static String staffRole = "";
   static String staffMobile = "";
@@ -34,10 +34,9 @@ class AppData {
   static List<Map<String, String>> patients = [];
 
   // Admin: list of staff members
-  // Each staff: { 'name', 'role', 'mobile', 'username', 'password' }
   static List<Map<String, String>> staffList = [];
 
-  // Admin: list of services (each: { 'name', 'status' })
+  // Admin: list of services
   static List<Map<String, String>> services = [];
 
   // Admin: all requests for monitoring
@@ -57,26 +56,20 @@ class AppData {
   // Helper: staff initials
   static String get staffInitials {
     List<String> parts = staffName.trim().split(" ");
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    } else if (parts.length == 1 && parts[0].isNotEmpty) {
-      return parts[0][0].toUpperCase();
-    }
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    if (parts.length == 1 && parts[0].isNotEmpty) return parts[0][0].toUpperCase();
     return "";
   }
 
   // Helper: initials from any name string
   static String initialsFrom(String name) {
     List<String> parts = name.trim().split(" ");
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    } else if (parts.length == 1 && parts[0].isNotEmpty) {
-      return parts[0][0].toUpperCase();
-    }
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    if (parts.length == 1 && parts[0].isNotEmpty) return parts[0][0].toUpperCase();
     return "?";
   }
 
-  // Helper: color for avatar based on name
+  // Helper: avatar color based on name
   static const List<int> _avatarColors = [
     0xFF4CAF50, 0xFF2196F3, 0xFFFF9800,
     0xFF9C27B0, 0xFFE91E63, 0xFF00BCD4,
@@ -86,7 +79,6 @@ class AppData {
     return _avatarColors[name.codeUnitAt(0) % _avatarColors.length];
   }
 
-  // Stats helpers
   static int get todayRequestCount => allRequests.length;
   static int get activeStaffCount =>
       staffList.where((s) => s['status'] != 'inactive').length;

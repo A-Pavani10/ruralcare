@@ -13,6 +13,7 @@ class PatientEntryScreen extends StatelessWidget {
         backgroundColor: Color(0xFF1A7A55),
         foregroundColor: Colors.white,
         title: Text(translations[lang]!['patient']!),
+        // Flutter auto-shows back arrow to role_screen
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 28, vertical: 40),
@@ -30,7 +31,8 @@ class PatientEntryScreen extends StatelessWidget {
             Text(
               translations[lang]!['already_registered']!,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600], fontSize: 14, height: 1.5),
+              style: TextStyle(
+                  color: Colors.grey[600], fontSize: 14, height: 1.5),
             ),
             SizedBox(height: 40),
             SizedBox(

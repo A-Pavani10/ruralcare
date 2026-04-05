@@ -24,9 +24,7 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
         'status': 'Pending',
       });
       AppData.incomingRequests.add({
-        'patient': AppData.patientFullName.isEmpty
-            ? 'Patient'
-            : AppData.patientFullName,
+        'patient': AppData.patientFullName.isEmpty ? 'Patient' : AppData.patientFullName,
         'service': serviceName,
         'time': _now(),
         'priority': 'Medium',
@@ -35,9 +33,7 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
         'status': 'Pending',
       });
       AppData.allRequests.add({
-        'patient': AppData.patientFullName.isEmpty
-            ? 'Patient'
-            : AppData.patientFullName,
+        'patient': AppData.patientFullName.isEmpty ? 'Patient' : AppData.patientFullName,
         'service': serviceName,
         'time': _now(),
         'status': 'Pending',
@@ -56,9 +52,7 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
         title: Text('Cancel $serviceName?'),
         content: Text('Are you sure you want to cancel this request?'),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('No')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('No')),
           TextButton(
             onPressed: () {
               setState(() {
@@ -112,8 +106,7 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
                       Expanded(
                         child: Text(
                           'Cancel button is disabled until you make a request for that service.',
-                          style: TextStyle(
-                              fontSize: 12, color: Colors.yellow[900]),
+                          style: TextStyle(fontSize: 12, color: Colors.yellow[900]),
                         ),
                       ),
                     ],
@@ -144,12 +137,10 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
                         ),
                         ...services.map((Map<String, String> svc) {
                           final String svcName = svc['name'] ?? '';
-                          final String? status =
-                              AppData.serviceStatuses[svcName];
+                          final String? status = AppData.serviceStatuses[svcName];
                           final bool hasStatus = status != null;
                           return TableRow(
-                            decoration:
-                                BoxDecoration(color: Colors.white),
+                            decoration: BoxDecoration(color: Colors.white),
                             children: [
                               Padding(
                                 padding: EdgeInsets.all(10),
@@ -179,12 +170,10 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
                                         horizontal: 4, vertical: 6),
                                     textStyle: TextStyle(fontSize: 12),
                                     shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(6)),
+                                        borderRadius: BorderRadius.circular(6)),
                                   ),
                                   onPressed: () => _book(svcName),
-                                  child:
-                                      Text(translations[lang]!['book']!),
+                                  child: Text(translations[lang]!['book']!),
                                 ),
                               ),
                               Padding(
@@ -195,21 +184,16 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
                                     backgroundColor: hasStatus
                                         ? Colors.red[100]
                                         : Colors.grey[200],
-                                    foregroundColor: hasStatus
-                                        ? Colors.red
-                                        : Colors.grey,
+                                    foregroundColor:
+                                        hasStatus ? Colors.red : Colors.grey,
                                     padding: EdgeInsets.symmetric(
                                         horizontal: 4, vertical: 6),
                                     textStyle: TextStyle(fontSize: 12),
                                     shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(6)),
+                                        borderRadius: BorderRadius.circular(6)),
                                   ),
-                                  onPressed: hasStatus
-                                      ? () => _cancel(svcName)
-                                      : null,
-                                  child:
-                                      Text(translations[lang]!['cancel']!),
+                                  onPressed: hasStatus ? () => _cancel(svcName) : null,
+                                  child: Text(translations[lang]!['cancel']!),
                                 ),
                               ),
                             ],
@@ -227,8 +211,7 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
   Widget _th(String text) => Padding(
         padding: EdgeInsets.all(10),
         child: Text(text,
-            style:
-                TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
       );
 
   Widget _emptyState(String msg) => Center(
@@ -238,12 +221,10 @@ class _PatientServicesScreenState extends State<PatientServicesScreen> {
             Icon(Icons.medical_services_outlined,
                 size: 56, color: Colors.grey[400]),
             SizedBox(height: 12),
-            Text(msg,
-                style: TextStyle(color: Colors.grey[500], fontSize: 15)),
+            Text(msg, style: TextStyle(color: Colors.grey[500], fontSize: 15)),
             SizedBox(height: 6),
             Text('Admin will add services soon.',
-                style:
-                    TextStyle(color: Colors.grey[400], fontSize: 13)),
+                style: TextStyle(color: Colors.grey[400], fontSize: 13)),
           ],
         ),
       );

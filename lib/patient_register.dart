@@ -5,8 +5,7 @@ import 'patient_dashboard.dart';
 
 class PatientRegisterScreen extends StatefulWidget {
   @override
-  _PatientRegisterScreenState createState() =>
-      _PatientRegisterScreenState();
+  _PatientRegisterScreenState createState() => _PatientRegisterScreenState();
 }
 
 class _PatientRegisterScreenState extends State<PatientRegisterScreen> {
@@ -34,8 +33,7 @@ class _PatientRegisterScreenState extends State<PatientRegisterScreen> {
         _aadhaarCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content:
-                Text('Please fill First Name, Mobile and Aadhaar fields')),
+            content: Text('Please fill First Name, Mobile and Aadhaar fields')),
       );
       return;
     }
@@ -58,12 +56,8 @@ class _PatientRegisterScreenState extends State<PatientRegisterScreen> {
     );
   }
 
-  Widget _field(
-    String label,
-    TextEditingController ctrl, {
-    TextInputType keyboard = TextInputType.text,
-    String hint = '',
-  }) {
+  Widget _field(String label, TextEditingController ctrl,
+      {TextInputType keyboard = TextInputType.text, String hint = ''}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -91,6 +85,7 @@ class _PatientRegisterScreenState extends State<PatientRegisterScreen> {
         backgroundColor: Color(0xFF1A7A55),
         foregroundColor: Colors.white,
         title: Text(translations[lang]!['register']!),
+        // Flutter auto-shows back arrow to patient_entry
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24),
@@ -119,36 +114,26 @@ class _PatientRegisterScreenState extends State<PatientRegisterScreen> {
             SizedBox(height: 24),
             _field(translations[lang]!['first_name']!, _firstNameCtrl),
             _field(translations[lang]!['last_name']!, _lastNameCtrl),
-            _field(
-              translations[lang]!['mobile_number']!,
-              _mobileCtrl,
-              keyboard: TextInputType.phone,
-              hint: '+91 XXXXX XXXXX',
-            ),
-            _field(
-              translations[lang]!['aadhaar_number']!,
-              _aadhaarCtrl,
-              keyboard: TextInputType.number,
-              hint: 'XXXX XXXX XXXX',
-            ),
+            _field(translations[lang]!['mobile_number']!, _mobileCtrl,
+                keyboard: TextInputType.phone, hint: '+91 XXXXX XXXXX'),
+            _field(translations[lang]!['aadhaar_number']!, _aadhaarCtrl,
+                keyboard: TextInputType.number, hint: 'XXXX XXXX XXXX'),
             _field(translations[lang]!['location_village']!, _locationCtrl),
             Divider(height: 8),
             SizedBox(height: 16),
             Text(translations[lang]!['aadhaar_otp']!,
                 style: TextStyle(fontWeight: FontWeight.w600)),
             SizedBox(height: 4),
-            Text(
-              'OTP sent to Aadhaar-linked mobile. One-time only.',
-              style: TextStyle(color: Colors.grey[500], fontSize: 12),
-            ),
+            Text('OTP sent to Aadhaar-linked mobile. One-time only.',
+                style: TextStyle(color: Colors.grey[500], fontSize: 12)),
             SizedBox(height: 8),
             TextField(
               controller: _otpCtrl,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 hintText: 'XXXXXX',
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
             SizedBox(height: 28),

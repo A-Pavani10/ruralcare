@@ -21,14 +21,12 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   }
 
   void _login() {
-    if (_usernameCtrl.text.trim().isEmpty ||
-        _passwordCtrl.text.trim().isEmpty) {
+    if (_usernameCtrl.text.trim().isEmpty || _passwordCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter username and password')),
       );
       return;
     }
-    // Save admin name for display in dashboard AppBar
     AppData.adminName = _usernameCtrl.text.trim();
     Navigator.pushReplacement(
       context,
@@ -45,6 +43,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         backgroundColor: Color(0xFF1A7A55),
         foregroundColor: Colors.white,
         title: Text(translations[lang]!['admin_login']!),
+        // Flutter auto-shows back arrow to role_screen
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24),
@@ -52,12 +51,12 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 12),
-            // Info banner matching screenshot style
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
                 color: Colors.blue[50],
-                border: Border(left: BorderSide(color: Color(0xFF1A7A55), width: 4)),
+                border: Border(
+                    left: BorderSide(color: Color(0xFF1A7A55), width: 4)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,7 +74,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               ),
             ),
             SizedBox(height: 28),
-            // Login card
             Container(
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -100,8 +98,8 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10)),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 14),
                     ),
                   ),
                   SizedBox(height: 20),
@@ -122,14 +120,16 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                           borderSide: BorderSide(color: Color(0xFF1A7A55)),
                           borderRadius: BorderRadius.circular(10)),
                       focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Color(0xFF1A7A55), width: 2),
+                          borderSide: BorderSide(
+                              color: Color(0xFF1A7A55), width: 2),
                           borderRadius: BorderRadius.circular(10)),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 14),
                       suffixIcon: IconButton(
                         icon: Icon(
-                            _obscure ? Icons.visibility_off : Icons.visibility,
+                            _obscure
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                             color: Colors.grey),
                         onPressed: () =>
                             setState(() => _obscure = !_obscure),

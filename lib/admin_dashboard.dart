@@ -5,7 +5,7 @@ import 'admin_patients.dart';
 import 'admin_staff.dart';
 import 'admin_services.dart';
 import 'admin_monitor.dart';
-import 'main.dart';
+import 'role_screen.dart';
 
 class AdminDashboard extends StatefulWidget {
   @override
@@ -80,18 +80,20 @@ class _AdminHomeTab extends StatelessWidget {
                 content: Text('Are you sure you want to logout as Admin?'),
                 actions: [
                   TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text('Cancel'),
-                  ),
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('Cancel')),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF1A7A55),
-                      foregroundColor: Colors.white,
-                    ),
+                        backgroundColor: Color(0xFF1A7A55),
+                        foregroundColor: Colors.white),
                     onPressed: () {
                       AppData.adminName = 'Admin';
-                      Navigator.pop(context); // close dialog
-                      Navigator.pop(context); // go back to previous screen
+                      Navigator.pop(context);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => RoleScreen()),
+                        (route) => false,
+                      );
                     },
                     child: Text('Logout'),
                   ),
@@ -128,7 +130,6 @@ class _AdminHomeTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Stats row
             Row(
               children: [
                 _statCard('$patientCount', translations[lang]!['patients']!,
@@ -142,7 +143,6 @@ class _AdminHomeTab extends StatelessWidget {
               ],
             ),
             SizedBox(height: 16),
-            // Info banner
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
@@ -160,15 +160,13 @@ class _AdminHomeTab extends StatelessWidget {
                     child: Text(
                       translations[lang]!['admin_note'] ??
                           'Admin monitors only. Doctors not in app — staff informs verbally.',
-                      style:
-                          TextStyle(fontSize: 13, color: Colors.green[900]),
+                      style: TextStyle(fontSize: 13, color: Colors.green[900]),
                     ),
                   ),
                 ],
               ),
             ),
             SizedBox(height: 20),
-            // Action cards
             _menuCard(
               emoji: '👥',
               title: translations[lang]!['patient_details']!,
