@@ -14,7 +14,7 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   int _currentIndex = 0;
-
+ 
   @override
   Widget build(BuildContext context) {
     String lang = AppData.selectedLanguage;
@@ -90,10 +90,10 @@ class _AdminHomeTab extends StatelessWidget {
                       AppData.adminName = 'Admin';
                       Navigator.pop(context);
                       Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => RoleScreen()),
-                        (route) => false,
-                      );
+  context,
+  MaterialPageRoute(builder: (_) => RoleScreen()),
+  (route) => route.isFirst,
+);
                     },
                     child: Text('Logout'),
                   ),

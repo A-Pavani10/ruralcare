@@ -18,13 +18,16 @@ class RoleScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF1A7A55),
         foregroundColor: Colors.white,
         title: Text(translations[lang]!['who_are_you']!),
-        // Flutter auto-shows back arrow to language_screen
+
+        // ✅ SMART BACK ARROW CONTROL
+        automaticallyImplyLeading: Navigator.canPop(context),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             const SizedBox(height: 8),
+
             _roleCard(
               emoji: '🧑',
               title: translations[lang]!['patient']!,
@@ -34,6 +37,7 @@ class RoleScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => PatientEntryScreen()),
               ),
             ),
+
             _roleCard(
               emoji: '👨‍⚕️',
               title: translations[lang]!['staff']!,
@@ -43,6 +47,7 @@ class RoleScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => StaffLoginScreen()),
               ),
             ),
+
             _roleCard(
               emoji: '🛡️',
               title: translations[lang]!['admin']!,

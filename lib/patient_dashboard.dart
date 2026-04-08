@@ -5,6 +5,7 @@ import 'patient_services.dart';
 import 'patient_requests.dart';
 import 'patient_profile.dart';
 import 'patient_entry.dart';
+import 'role_screen.dart'; // ✅ ADDED
 
 class PatientDashboard extends StatefulWidget {
   @override
@@ -62,11 +63,16 @@ class _PatientHomeTab extends StatelessWidget {
 
   Color _statusColor(String status) {
     switch (status) {
-      case 'Accepted': return Colors.green;
-      case 'Pending': return Colors.orange;
-      case 'Completed': return Colors.blue;
-      case 'Rejected': return Colors.red;
-      default: return Colors.grey;
+      case 'Accepted':
+        return Colors.green;
+      case 'Pending':
+        return Colors.orange;
+      case 'Completed':
+        return Colors.blue;
+      case 'Rejected':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -75,8 +81,10 @@ class _PatientHomeTab extends StatelessWidget {
     String lang = AppData.selectedLanguage;
     final requests = AppData.patientRequests;
     int total = requests.length;
-    int accepted = requests.where((r) => r['status'] == 'Accepted').length;
-    int pending = requests.where((r) => r['status'] == 'Pending').length;
+    int accepted =
+        requests.where((r) => r['status'] == 'Accepted').length;
+    int pending =
+        requests.where((r) => r['status'] == 'Pending').length;
     final recent = requests.reversed.take(3).toList();
 
     return Scaffold(
@@ -105,11 +113,14 @@ class _PatientHomeTab extends StatelessWidget {
                     ),
                     onPressed: () {
                       AppData.clearPatient();
+
                       Navigator.pop(context); // close dialog
+
+                      // ✅ UPDATED NAVIGATION
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (_) => PatientEntryScreen()),
-                        (route) => false,
+                        MaterialPageRoute(builder: (_) => RoleScreen()),
+                        (route) => route.isFirst,
                       );
                     },
                     child: Text('Logout'),
@@ -138,37 +149,42 @@ class _PatientHomeTab extends StatelessWidget {
           children: [
             Row(
               children: [
-                _statCard('$total', translations[lang]!['total_requests']!,
-                    Colors.indigo),
+                _statCard('$total',
+                    translations[lang]!['total_requests']!, Colors.indigo),
                 SizedBox(width: 10),
-                _statCard('$accepted', translations[lang]!['accepted']!,
-                    Colors.green),
+                _statCard('$accepted',
+                    translations[lang]!['accepted']!, Colors.green),
                 SizedBox(width: 10),
-                _statCard(
-                    '$pending', translations[lang]!['pending']!, Colors.orange),
+                _statCard('$pending',
+                    translations[lang]!['pending']!, Colors.orange),
               ],
             ),
             SizedBox(height: 20),
             Text(translations[lang]!['quick_actions']!,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
-                  child: _quickActionCard('🏥', translations[lang]!['services']!,
+                  child: _quickActionCard(
+                      '🏥',
+                      translations[lang]!['services']!,
                       () => onTabSwitch(1)),
                 ),
                 SizedBox(width: 12),
                 Expanded(
                   child: _quickActionCard(
-                      '📋', translations[lang]!['my_requests']!,
+                      '📋',
+                      translations[lang]!['my_requests']!,
                       () => onTabSwitch(2)),
                 ),
               ],
             ),
             SizedBox(height: 20),
             Text(translations[lang]!['recent_activity']!,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             SizedBox(height: 12),
             if (recent.isEmpty)
               _emptyState(translations[lang]!['no_requests']!)
@@ -187,7 +203,9 @@ class _PatientHomeTab extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+          boxShadow: [
+            BoxShadow(color: Colors.black12, blurRadius: 4)
+          ],
         ),
         child: Column(
           children: [
@@ -198,7 +216,8 @@ class _PatientHomeTab extends StatelessWidget {
                     color: color)),
             SizedBox(height: 4),
             Text(label,
-                style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                style: TextStyle(
+                    fontSize: 11, color: Colors.grey[600]),
                 textAlign: TextAlign.center),
           ],
         ),
@@ -206,7 +225,8 @@ class _PatientHomeTab extends StatelessWidget {
     );
   }
 
-  Widget _quickActionCard(String emoji, String label, VoidCallback onTap) {
+  Widget _quickActionCard(
+      String emoji, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -214,14 +234,17 @@ class _PatientHomeTab extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+          boxShadow: [
+            BoxShadow(color: Colors.black12, blurRadius: 4)
+          ],
         ),
         child: Column(
           children: [
             Text(emoji, style: TextStyle(fontSize: 28)),
             SizedBox(height: 6),
             Text(label,
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                style: TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -236,27 +259,35 @@ class _PatientHomeTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 4)
+        ],
       ),
       child: Row(
         children: [
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(item['service']!,
-                    style: TextStyle(fontWeight: FontWeight.w600)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w600)),
                 SizedBox(height: 4),
                 Text(item['time'] ?? '',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                    style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12)),
               ],
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: EdgeInsets.symmetric(
+                horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: statusColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius:
+                  BorderRadius.circular(20),
             ),
             child: Text(
               item['status']!,
@@ -278,10 +309,13 @@ class _PatientHomeTab extends StatelessWidget {
       alignment: Alignment.center,
       child: Column(
         children: [
-          Icon(Icons.inbox_outlined, size: 48, color: Colors.grey[400]),
+          Icon(Icons.inbox_outlined,
+              size: 48, color: Colors.grey[400]),
           SizedBox(height: 8),
           Text(message,
-              style: TextStyle(color: Colors.grey[500], fontSize: 14)),
+              style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 14)),
         ],
       ),
     );

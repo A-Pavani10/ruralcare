@@ -89,11 +89,11 @@ class _StaffHomeTab extends StatelessWidget {
                     onPressed: () {
                       AppData.clearStaff();
                       Navigator.pop(context);
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (_) => RoleScreen()),
-                        (route) => false,
-                      );
+                     Navigator.pushAndRemoveUntil(
+  context,
+  MaterialPageRoute(builder: (_) => RoleScreen()),
+  (route) => route.isFirst,
+);
                     },
                     child: Text('Logout'),
                   ),
