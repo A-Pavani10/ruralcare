@@ -2,18 +2,199 @@ import 'package:flutter/material.dart';
 import 'app_data.dart';
 import 'translations.dart';
 
+String t(String key) {
+  return translations[AppData.selectedLanguage]![key] ?? key;
+}
+
 class StaffMyTasksScreen extends StatefulWidget {
   @override
   _StaffMyTasksScreenState createState() => _StaffMyTasksScreenState();
 }
 
 class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
+  void _rescheduleTask(int index) {
+    String? selectedSlot;
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(t('reschedule_slot')),
+        content: DropdownButtonFormField<String>(
+          hint: Text(t('choose_new_slot')),
+          items: ["9 AM", "11 AM", "2 PM", "4 PM"].map((slot) {
+            return DropdownMenuItem(value: slot, child: Text(slot));
+          }).toList(),
+          onChanged: (value) {
+            selectedSlot = value;
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t('cancel')),
+          ),
+          TextButton(
+            onPressed: () {
+              if (selectedSlot == null) return;
+
+              setState(() {
+                AppData.myTasks[index]['status'] = 'Rescheduled';
+                AppData.myTasks[index]['timeSlot'] = selectedSlot;
+
+                String service = AppData.myTasks[index]['service'];
+
+                // Update patientRequests
+                for (var req in AppData.patientRequests) {
+                  if (req['service'] == service) {
+                    req['status'] = 'Rescheduled';
+                    req['timeSlot'] = selectedSlot!;
+                    break;
+                  }
+                }
+
+                // Update allRequests
+                for (var req in AppData.allRequests) {
+                  if (req['service'] == service) {
+                    req['status'] = 'Rescheduled';
+                    req['timeSlot'] = selectedSlot!;
+                    req['claimedBy'] = AppData.staffName;
+                    break;
+                  }
+                }
+              });
+
+              Navigator.pop(context);
+            },
+            child: Text(t('confirm')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _acceptTask(int index) {
+    String? selectedSlot;
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(t('select_time_slot')),
+        content: DropdownButtonFormField<String>(
+          hint: Text(t('choose_slot')),
+          items: ["9 AM", "11 AM", "2 PM", "4 PM"].map((slot) {
+            return DropdownMenuItem(value: slot, child: Text(slot));
+          }).toList(),
+          onChanged: (value) {
+            selectedSlot = value;
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t('cancel')),
+          ),
+          TextButton(
+            onPressed: () {
+              if (selectedSlot == null) return;
+
+              setState(() {
+                AppData.myTasks[index]['status'] = 'Accepted';
+                AppData.myTasks[index]['timeSlot'] = selectedSlot;
+
+                String service = AppData.myTasks[index]['service'];
+
+                // Update patientRequests
+                for (var req in AppData.patientRequests) {
+                  if (req['service'] == service) {
+                    req['status'] = 'Accepted';
+                    req['timeSlot'] = selectedSlot!;
+                    break;
+                  }
+                }
+
+                // Update allRequests
+                for (var req in AppData.allRequests) {
+                  if (req['service'] == service) {
+                    req['status'] = 'Accepted';
+                    req['timeSlot'] = selectedSlot!;
+                    req['claimedBy'] = AppData.staffName;
+                    break;
+                  }
+                }
+              });
+
+              Navigator.pop(context);
+            },
+            child: Text(t('confirm')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _rejectTask(int index) {
+    TextEditingController controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(t('reject_request')),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(hintText: t('enter_reason')),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(t('cancel')),
+          ),
+          TextButton(
+            onPressed: () {
+              if (controller.text.isEmpty) return;
+
+              setState(() {
+                AppData.myTasks[index]['status'] = 'Rejected';
+                AppData.myTasks[index]['reason'] = controller.text;
+
+                String service = AppData.myTasks[index]['service'];
+
+                for (var req in AppData.patientRequests) {
+                  if (req['service'] == service) {
+                    req['status'] = 'Rejected';
+                    req['reason'] = controller.text;
+                    break;
+                  }
+                }
+
+                for (var req in AppData.allRequests) {
+                  if (req['service'] == service) {
+                    req['status'] = 'Rejected';
+                    req['reason'] = controller.text;
+                    req['claimedBy'] = AppData.staffName;
+                    break;
+                  }
+                }
+              });
+
+              Navigator.pop(context);
+            },
+            child: Text(t('submit')),
+          ),
+        ],
+      ),
+    );
+  }
+
   Color _priorityColor(String priority) {
     switch (priority) {
-      case 'High': return Colors.red;
-      case 'Medium': return Colors.orange;
-      case 'Low': return Colors.green;
-      default: return Colors.grey;
+      case 'High':
+        return Colors.red;
+      case 'Medium':
+        return Colors.orange;
+      case 'Low':
+        return Colors.green;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -71,9 +252,13 @@ class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
                   if (active.isNotEmpty) ...[
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                      child: Text(translations[lang]!['active_tasks']!,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15)),
+                      child: Text(
+                        translations[lang]!['active_tasks']!,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
                     ),
                     ...active.map((entry) {
                       int idx = entry.key;
@@ -88,7 +273,7 @@ class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
-                            BoxShadow(color: Colors.black12, blurRadius: 4)
+                            BoxShadow(color: Colors.black12, blurRadius: 4),
                           ],
                         ),
                         child: Column(
@@ -102,27 +287,34 @@ class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                          '${task["patient"]} — ${task["service"]}',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold)),
+                                        '${task["patient"]} — ${task["service"]}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                       SizedBox(height: 4),
                                       Container(
                                         padding: EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 2),
+                                          horizontal: 8,
+                                          vertical: 2,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: _priorityColor(
-                                                  task['priority'])
-                                              .withOpacity(0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                            task['priority'],
+                                          ).withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                         ),
                                         child: Text(
                                           task['priority'],
                                           style: TextStyle(
-                                              color: _priorityColor(
-                                                  task['priority']),
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w600),
+                                            color: _priorityColor(
+                                              task['priority'],
+                                            ),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -130,16 +322,21 @@ class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
                                 ),
                                 Container(
                                   padding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 4),
+                                    horizontal: 10,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.teal[50],
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: Text(task['status'],
-                                      style: TextStyle(
-                                          color: Colors.teal,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 12)),
+                                  child: Text(
+                                    task['status'],
+                                    style: TextStyle(
+                                      color: Colors.teal,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -153,13 +350,16 @@ class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
                                         backgroundColor: Colors.green,
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8)),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
                                       ),
-                                      onPressed: () =>
-                                          _updateTask(idx, 'Accepted'),
+                                      onPressed: () => _acceptTask(idx),
+
                                       child: Text(
-                                          translations[lang]!['accept']!),
+                                        translations[lang]!['accept']!,
+                                      ),
                                     ),
                                   ),
                                   SizedBox(width: 8),
@@ -169,13 +369,16 @@ class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
                                         backgroundColor: Colors.red[100],
                                         foregroundColor: Colors.red,
                                         shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8)),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
                                       ),
-                                      onPressed: () =>
-                                          _updateTask(idx, 'Rejected'),
+                                      onPressed: () => _rejectTask(idx),
+
                                       child: Text(
-                                          translations[lang]!['reject']!),
+                                        translations[lang]!['reject']!,
+                                      ),
                                     ),
                                   ),
                                   SizedBox(width: 8),
@@ -185,12 +388,16 @@ class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
                                         backgroundColor: Colors.orange[100],
                                         foregroundColor: Colors.orange[800],
                                         shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8)),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
                                       ),
-                                      onPressed: () {},
-                                      child: Text(translations[lang]!
-                                          ['reschedule']!),
+                                      onPressed: () => _rescheduleTask(idx),
+
+                                      child: Text(
+                                        translations[lang]!['reschedule']!,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -203,13 +410,13 @@ class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
                                     backgroundColor: Colors.blue,
                                     foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8)),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
-                                  onPressed: () =>
-                                      _updateTask(idx, 'Done'),
+                                  onPressed: () => _updateTask(idx, 'Done'),
                                   child: Text(
-                                      translations[lang]!['mark_done']!),
+                                    translations[lang]!['mark_done']!,
+                                  ),
                                 ),
                               ),
                           ],
@@ -220,9 +427,13 @@ class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
                   if (past.isNotEmpty) ...[
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                      child: Text(translations[lang]!['past_tasks']!,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15)),
+                      child: Text(
+                        translations[lang]!['past_tasks']!,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
                     ),
                     ...past.map((entry) {
                       Map<String, dynamic> task = entry.value;
@@ -233,29 +444,34 @@ class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
-                            BoxShadow(color: Colors.black12, blurRadius: 4)
+                            BoxShadow(color: Colors.black12, blurRadius: 4),
                           ],
                         ),
                         child: Row(
                           children: [
                             Expanded(
                               child: Text(
-                                  '${task["patient"]} — ${task["service"]}',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
+                                '${task["patient"]} — ${task["service"]}',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.blue[50],
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Text(translations[lang]!['done']!,
-                                  style: TextStyle(
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 12)),
+                              child: Text(
+                                translations[lang]!['done']!,
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -269,17 +485,15 @@ class _StaffMyTasksScreenState extends State<StaffMyTasksScreen> {
   }
 
   Widget _emptyState(String msg) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_circle_outline,
-                size: 56, color: Colors.grey[400]),
-            SizedBox(height: 12),
-            Text(msg, style: TextStyle(color: Colors.grey[500], fontSize: 15)),
-            SizedBox(height: 6),
-            Text('Claim requests from Incoming tab.',
-                style: TextStyle(color: Colors.grey[400], fontSize: 13)),
-          ],
-        ),
-      );
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.check_circle_outline, size: 56, color: Colors.grey[400]),
+        SizedBox(height: 12),
+        Text(msg, style: TextStyle(color: Colors.grey[500], fontSize: 15)),
+        SizedBox(height: 6),
+        Text(t('claim_from_incoming')),
+      ],
+    ),
+  );
 }

@@ -1,5 +1,20 @@
 Map<String, Map<String, String>> translations = {
   "en": {
+    "severity": "Severity",
+"select": "Select",
+"select_severity_first": "Select severity first",
+"request_submitted": "Request submitted for",
+"cancel_request": "Cancel",
+"confirm": "Confirm",
+"cancel_dialog": "Cancel",
+"yes": "Yes",
+"no": "No",
+"enter_reason": "Enter reason",
+"reschedule_slot": "Reschedule Slot",
+"choose_slot": "Choose Slot",
+"choose_new_slot": "Choose New Slot",
+"reject_request": "Reject Request",
+
     "choose_language": "Choose Language",
     "who_are_you": "Who are you?",
     "patient": "Patient",
@@ -98,6 +113,7 @@ Map<String, Map<String, String>> translations = {
     "waiting_for_staff": "Waiting for staff",
     "not_yet_claimed": "Not yet claimed",
     "claimed_by": "Claimed by",
+    
     // New admin keys
     "admin_info": "Admin access only. Manages patients, staff & services.",
     "admin_note":

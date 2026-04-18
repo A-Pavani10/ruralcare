@@ -131,11 +131,14 @@ class _StaffIncomingScreenState extends State<StaffIncomingScreen> {
                                   }
                                   // Add to my tasks
                                   AppData.myTasks.add({
-                                    'patient': req['patient'],
-                                    'service': req['service'],
-                                    'priority': req['priority'],
-                                    'status': 'Claimed',
-                                  });
+                                  'patient': req['patient'],
+                                  'service': req['service'],
+                                  'priority': req['priority'],
+                                  'status': 'Claimed',
+                                  'timeSlot': '',
+                                  'reason': '',
+                                });
+                                  
                                 });
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
