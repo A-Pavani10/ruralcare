@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'app_data.dart';
 import 'translations.dart';
 import 'staff_dashboard.dart';
-
+import 'firestore_service.dart'; // ✅ NEW IMPORT
 class StaffLoginScreen extends StatefulWidget {
   @override
   _StaffLoginScreenState createState() => _StaffLoginScreenState();
@@ -20,31 +20,54 @@ class _StaffLoginScreenState extends State<StaffLoginScreen> {
     super.dispose();
   }
 
-  void _login() {
-    if (_usernameCtrl.text.trim().isEmpty || _passwordCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter username and password')),
-      );
-      return;
-    }
-    final match = AppData.staffList.firstWhere(
-      (s) => s['name']?.toLowerCase() == _usernameCtrl.text.trim().toLowerCase(),
-      orElse: () => {},
+  void _login() async {
+  final username = _usernameCtrl.text.trim();
+  final password = _passwordCtrl.text.trim();
+
+  if (username.isEmpty || password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Please enter username and password')),
     );
-    if (match.isNotEmpty) {
-      AppData.staffName = match['name'] ?? _usernameCtrl.text.trim();
-      AppData.staffRole = match['role'] ?? '';
-      AppData.staffMobile = match['mobile'] ?? '';
-    } else {
-      AppData.staffName = _usernameCtrl.text.trim();
-      AppData.staffRole = '';
-      AppData.staffMobile = '';
-    }
-    Navigator.pushReplacement(
+    return;
+  }
+
+  // ✅ CLEAR OLD SESSION (VERY IMPORTANT)
+  AppData.clearStaff();
+
+  // 🔥 FIRESTORE LOGIN
+  final user = await FirestoreService()
+      .checkStaffLogin(username, password);
+
+  if (user != null) {
+
+    // ✅ SAVE DATA
+    AppData.staffName = user['name'] ?? '';
+    AppData.staffRole = user['role'] ?? '';
+    AppData.staffMobile = user['mobile'] ?? '';
+
+    // ✅ SUCCESS MESSAGE (for testing)
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Login Successful')),
+    );
+
+    // ✅ NAVIGATION (SAFE)
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => StaffDashboard()),
+      (route) => false,
     );
+
+  } else {
+
+    // ❌ BLOCK ACCESS
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Invalid username or password')),
+    );
+
+    // ❌ DO NOT NAVIGATE
+    return;
   }
+}
 
   @override
   Widget build(BuildContext context) {

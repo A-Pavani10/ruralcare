@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'app_data.dart';
 import 'translations.dart';
+import 'firestore_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AdminStaffScreen extends StatefulWidget {
   @override
@@ -8,112 +10,152 @@ class AdminStaffScreen extends StatefulWidget {
 }
 
 class _AdminStaffScreenState extends State<AdminStaffScreen> {
-  void _showAddStaffDialog({Map<String, String>? existing, int? index}) {
+
+  // =========================
+  // ➕ ADD STAFF
+  // =========================
+  void _showAddStaffDialog() {
     String lang = AppData.selectedLanguage;
-    final nameCtrl = TextEditingController(text: existing?['name'] ?? '');
-    final roleCtrl = TextEditingController(text: existing?['role'] ?? '');
-    final mobileCtrl = TextEditingController(text: existing?['mobile'] ?? '');
-    final userCtrl = TextEditingController(text: existing?['username'] ?? '');
-    final passCtrl = TextEditingController(text: existing?['password'] ?? '');
+
+    final nameCtrl = TextEditingController();
+    final roleCtrl = TextEditingController();
+    final mobileCtrl = TextEditingController();
+    final userCtrl = TextEditingController();
+    final passCtrl = TextEditingController();
 
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(existing == null
-            ? (translations[lang]!['add_new_staff']!)
-            : translations[lang]!['edit']! + ' Staff'),
+        title: Text(translations[lang]!['add_new_staff']!),
         content: SingleChildScrollView(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              _dialogField('Staff Name', nameCtrl),
-              _dialogField('Role', roleCtrl),
-              _dialogField('Mobile', mobileCtrl, keyboard: TextInputType.phone),
-              _dialogField('Username', userCtrl),
-              _dialogField('Password', passCtrl),
+              _field('Name', nameCtrl),
+              _field('Role', roleCtrl),
+              _field('Mobile', mobileCtrl),
+              _field('Username', userCtrl),
+              _field('Password', passCtrl),
             ],
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(translations[lang]!['cancel']!)),
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF1A7A55),
-                foregroundColor: Colors.white),
-            onPressed: () {
-              if (nameCtrl.text.trim().isEmpty || roleCtrl.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Name and Role are required')),
-                );
-                return;
-              }
-              setState(() {
-                final entry = {
-                  'name': nameCtrl.text.trim(),
-                  'role': roleCtrl.text.trim(),
-                  'mobile': mobileCtrl.text.trim(),
-                  'username': userCtrl.text.trim(),
-                  'password': passCtrl.text.trim(),
-                };
-                if (index != null) {
-                  AppData.staffList[index] = entry;
-                } else {
-                  AppData.staffList.add(entry);
-                }
-              });
+            onPressed: () async {
+              await FirestoreService().addStaff(
+                name: nameCtrl.text,
+                username: userCtrl.text,
+                password: passCtrl.text,
+                role: roleCtrl.text,
+                mobile: mobileCtrl.text,
+              );
               Navigator.pop(context);
             },
-            child: Text(translations[lang]!['save']!),
+            child: Text('Save'),
           ),
         ],
       ),
     );
   }
 
-  void _removeStaff(int index) {
-    String lang = AppData.selectedLanguage;
+  // =========================
+  // ✏️ EDIT STAFF
+  // =========================
+  void _showEditDialog(String docId, Map<String, dynamic> data) {
+
+    final nameCtrl = TextEditingController(text: data['name']);
+    final roleCtrl = TextEditingController(text: data['role']);
+    final mobileCtrl = TextEditingController(text: data['mobile']);
+    final userCtrl = TextEditingController(text: data['username']);
+    final passCtrl = TextEditingController(text: data['password']);
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Remove Staff?'),
-        content: Text('Remove ${AppData.staffList[index]['name']} from the system?'),
+        title: Text("Edit Staff"),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              _field('Name', nameCtrl),
+              _field('Role', roleCtrl),
+              _field('Mobile', mobileCtrl),
+              _field('Username', userCtrl),
+              _field('Password', passCtrl),
+            ],
+          ),
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(translations[lang]!['cancel']!)),
-          TextButton(
-            onPressed: () {
-              setState(() => AppData.staffList.removeAt(index));
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await FirestoreService().updateStaff(
+                docId: docId,
+                name: nameCtrl.text,
+                username: userCtrl.text,
+                password: passCtrl.text,
+                role: roleCtrl.text,
+                mobile: mobileCtrl.text,
+              );
+
               Navigator.pop(context);
             },
-            child: Text(translations[lang]!['remove']!,
-                style: TextStyle(color: Colors.red)),
+            child: Text("Update"),
           ),
         ],
       ),
     );
   }
 
-  Widget _dialogField(String label, TextEditingController ctrl,
-      {TextInputType keyboard = TextInputType.text}) {
+  // =========================
+  // 🗑 DELETE CONFIRM
+  // =========================
+  void _confirmDelete(String docId) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("Delete Staff"),
+        content: Text("Are you sure you want to delete this staff?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            onPressed: () async {
+              await FirestoreService().deleteStaff(docId);
+              Navigator.pop(context);
+            },
+            child: Text("Delete"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================
+  // FIELD UI
+  // =========================
+  Widget _field(String label, TextEditingController ctrl) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 14),
+      padding: EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          Text(label),
           SizedBox(height: 6),
           TextField(
             controller: ctrl,
-            keyboardType: keyboard,
             decoration: InputDecoration(
-              isDense: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              border: OutlineInputBorder(),
             ),
           ),
         ],
@@ -121,188 +163,80 @@ class _AdminStaffScreenState extends State<AdminStaffScreen> {
     );
   }
 
+  // =========================
+  // UI
+  // =========================
   @override
   Widget build(BuildContext context) {
-    String lang = AppData.selectedLanguage;
-    final staff = AppData.staffList;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: Color(0xFF1A7A55),
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: false,
-        title: Text(translations[lang]!['staff_management']!),
-      ),
+      appBar: AppBar(title: Text("Staff Management")),
+
       body: Column(
         children: [
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.green[50],
-              border:
-                  Border(left: BorderSide(color: Colors.orange, width: 4)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('⚠️', style: TextStyle(fontSize: 16)),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    translations[lang]!['staff_info'] ??
-                        'No doctor accounts. Staff informs doctors verbally after claiming a request.',
-                    style: TextStyle(fontSize: 13, color: Colors.green[900]),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF1A7A55),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  textStyle:
-                      TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                onPressed: () => _showAddStaffDialog(),
-                child: Text(translations[lang]!['add_new_staff']!),
-              ),
-            ),
-          ),
-          Expanded(
-            child: staff.isEmpty
-                ? _emptyState(translations[lang]!['no_staff']!)
-                : SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(color: Colors.black12, blurRadius: 4)
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(16, 14, 16, 8),
-                            child: Text(
-                              'Current Staff (${staff.length})',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 15),
-                            ),
-                          ),
-                          Divider(height: 1),
-                          ...staff.asMap().entries.map((entry) {
-                            int idx = entry.key;
-                            final Map<String, String> s = entry.value;
-                            final initials =
-                                AppData.initialsFrom(s['name'] ?? '');
-                            final color =
-                                Color(AppData.avatarColor(s['name'] ?? ''));
-                            return Column(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 12),
-                                  child: Row(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 24,
-                                        backgroundColor:
-                                            color.withOpacity(0.2),
-                                        child: Text(initials,
-                                            style: TextStyle(
-                                                color: color,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15)),
-                                      ),
-                                      SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(s['name'] ?? '—',
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 15)),
-                                            Text(s['role'] ?? '—',
-                                                style: TextStyle(
-                                                    color: Colors.grey[600],
-                                                    fontSize: 13)),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(width: 8),
-                                      ElevatedButton(
-                                        onPressed: () => _showAddStaffDialog(
-                                            existing: s, index: idx),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blue,
-                                          foregroundColor: Colors.white,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 8),
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20)),
-                                          textStyle: TextStyle(fontSize: 13),
-                                        ),
-                                        child:
-                                            Text(translations[lang]!['edit']!),
-                                      ),
-                                      SizedBox(width: 6),
-                                      ElevatedButton(
-                                        onPressed: () => _removeStaff(idx),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.red,
-                                          foregroundColor: Colors.white,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 8),
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20)),
-                                          textStyle: TextStyle(fontSize: 13),
-                                        ),
-                                        child: Text(
-                                            translations[lang]!['remove']!),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (idx < staff.length - 1)
-                                  Divider(height: 1, indent: 72, endIndent: 16),
-                              ],
-                            );
-                          }).toList(),
-                        ],
-                      ),
-                    ),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _emptyState(String msg) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.people_outline, size: 56, color: Colors.grey[400]),
-          SizedBox(height: 12),
-          Text(msg, style: TextStyle(color: Colors.grey[500], fontSize: 15)),
+          ElevatedButton(
+            onPressed: _showAddStaffDialog,
+            child: Text("Add Staff"),
+          ),
+
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirestoreService().getStaff(),
+              builder: (context, snapshot) {
+
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                final docs = snapshot.data!.docs;
+
+                return ListView.builder(
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+
+                    final doc = docs[index];
+                    final data = doc.data() as Map<String, dynamic>;
+
+                    return Card(
+                      child: ListTile(
+                        title: Text(data['name']),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Role: ${data['role']}"),
+                            Text("Mobile: ${data['mobile']}"),
+                            Text("Username: ${data['username']}"),
+                          ],
+                        ),
+
+                        // ✅ EDIT + DELETE
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+
+                            IconButton(
+                              icon: Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () {
+                                _showEditDialog(doc.id, data);
+                              },
+                            ),
+
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                _confirmDelete(doc.id);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
