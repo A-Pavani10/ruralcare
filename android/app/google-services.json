@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "211821682530",
-    "project_id": "ruralcare-817b4",
-    "storage_bucket": "ruralcare-817b4.firebasestorage.app"
+    "project_number": "518491639653",
+    "project_id": "ruralcare-production",
+    "storage_bucket": "ruralcare-production.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:211821682530:android:22e18107e38ad49298563b",
+        "mobilesdk_app_id": "1:518491639653:android:429df012089de0cbbf5b8c",
         "android_client_info": {
           "package_name": "com.example.ruralcare"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBn00tYVtyZnuaqcV-u1L7tlXpv5scMuUQ"
+          "current_key": "AIzaSyB0HOtixoT9poTirFkEf2lQ9Uhabb6_aC0"
         }
       ],
       "services": {

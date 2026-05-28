@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Spark-plan demo login collections.
+    // Admin/staff credentials are checked directly from Firestore for this
+    // internship/demo build, so login screens must be able to read them before
+    // an authenticated app session exists.
+    match /adminAccounts/{adminId} {
+      allow read, create, update: if true;
+      allow delete: if signedIn();
+    }
+
+    match /staff/{staffId} {
+      allow read: if true;
+      allow create, update, delete: if signedIn();
+    }
+
+    match /services/{serviceId} {
+      allow read, create: if true;
+      allow update, delete: if signedIn();
+    }
+
+    match /patients/{patientId} {
+      allow read, write: if signedIn();
+    }
+
+    match /requests/{requestId} {
+      allow read, write: if signedIn();
+    }
+
+    match /notifications/{notificationId} {
+      allow read, write: if signedIn();
+    }
+
+    match /loginAttempts/{logId} {
+      allow read, write: if signedIn();
+    }
+
+    // Remaining app data requires Firebase Auth. Patients and admin/staff use
+    // anonymous auth sessions in this Spark-plan demo.
+    match /{document=**} {
+      allow read, write: if signedIn();
+    }
+  }
+}

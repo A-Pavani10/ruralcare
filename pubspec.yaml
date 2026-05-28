@@ -1,8 +1,7 @@
-name: ruralcare
-description: "A new Flutter project."
-publish_to: 'none'
-
+﻿name: ruralcare
 version: 1.0.0+1
+publish_to: 'none'
+description: RuralCare healthcare-at-home mobile application.
 
 environment:
   sdk: ^3.11.4
@@ -10,18 +9,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  cupertino_icons: ^1.0.8
-
-  # 🔥 FIREBASE PACKAGES
-  firebase_core: ^2.30.0
   cloud_firestore: ^4.17.0
+  cupertino_icons: ^1.0.8
   firebase_auth: ^4.19.0
+  firebase_core: ^2.30.0
+  firebase_messaging: ^14.9.0
+  intl: ^0.19.0
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^6.0.0
 
 flutter:
