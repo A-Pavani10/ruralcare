@@ -1,11 +1,35 @@
 part of '../main.dart';
 
+Future<void> seedDefaultHospitalIfMissing() async {
+  try {
+    await ensureFirebaseAuthSession();
+    final ref = db.collection('hospitals').doc(hospitalId);
+    final snap = await ref.get();
+    if (snap.exists) return;
+    await ref.set({
+      'hospitalId': hospitalId,
+      'hospitalName': hospitalName,
+      'shortName': hospitalShortName,
+      'city': 'Anantapur',
+      'state': 'Andhra Pradesh',
+      'country': 'India',
+      'location': hospitalLocation,
+      'isActive': true,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  } catch (_) {
+    // Hospital identity seeding should not block app startup.
+  }
+}
+
 Future<void> logAttempt(
   String role,
   String username,
   bool success,
   String reason,
 ) async {
+  await ensureFirebaseAuthSession();
   await db.collection('loginAttempts').add({
     'role': role,
     'username': username.trim().toLowerCase(),
@@ -17,6 +41,7 @@ Future<void> logAttempt(
 
 Future<void> seedDefaultAdminIfMissing() async {
   try {
+    await ensureFirebaseAuthSession();
     final ref = db.collection('adminAccounts').doc('admin');
     final snap = await ref.get();
     if (snap.exists) return;
@@ -24,14 +49,18 @@ Future<void> seedDefaultAdminIfMissing() async {
       'uid': 'admin',
       'username': 'admin',
       'usernameLower': 'admin',
-      'password': 'Admin@12345',
-      'securityQuestion': 'Your favourite place?',
-      'securityAnswer': 'hospital',
+      'passwordHash': hashSecret('Admin@12345', 'admin'),
+      'securityQuestion': 'Protected recovery phrase',
+      'recoveryConfigured': _recoverySecret.isNotEmpty,
+      if (_recoverySecret.isNotEmpty)
+        'securityAnswerHash': hashSecret(_recoverySecret, 'admin-recovery'),
+      'role': 'admin',
+      'authUid': auth.currentUser?.uid ?? '',
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   } catch (_) {
-    // If rules are not deployed yet, login also has a guarded seed path.
+    // App startup should not be blocked by first-run seed permissions/network.
   }
 }
 
@@ -56,7 +85,7 @@ Future<void> seedDefaultServicesIfMissing() async {
     }
     await batch.commit();
   } catch (_) {
-    // Demo seeding should never block app launch or login.
+    // Service seeding is a convenience only.
   }
 }
 
@@ -70,21 +99,26 @@ Future<Map<String, dynamic>> adminLoginDirect(
     throw Exception('Enter username and password.');
   }
 
+  await ensureFirebaseAuthSession();
   final admins = db.collection('adminAccounts');
   final existing = await admins
       .where('usernameLower', isEqualTo: user)
       .limit(1)
-      .get();
+      .get()
+      .timeout(const Duration(seconds: 12));
 
   if (existing.docs.isEmpty && user == 'admin' && pass == 'Admin@12345') {
-    await ensureFirebaseAuthSession();
     await admins.doc('admin').set({
       'uid': 'admin',
       'username': 'admin',
       'usernameLower': 'admin',
-      'password': 'Admin@12345',
-      'securityQuestion': 'Your favourite place?',
-      'securityAnswer': 'hospital',
+      'passwordHash': hashSecret('Admin@12345', 'admin'),
+      'securityQuestion': 'Protected recovery phrase',
+      'recoveryConfigured': _recoverySecret.isNotEmpty,
+      if (_recoverySecret.isNotEmpty)
+        'securityAnswerHash': hashSecret(_recoverySecret, 'admin-recovery'),
+      'role': 'admin',
+      'authUid': auth.currentUser?.uid ?? '',
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
@@ -97,16 +131,33 @@ Future<Map<String, dynamic>> adminLoginDirect(
     throw Exception('Invalid username or password. Please try again.');
   }
 
-  final data = existing.docs.first.data();
-  if ((data['password'] ?? '') != pass) {
+  final doc = existing.docs.first;
+  final data = doc.data();
+  if (!verifySecret(
+    value: pass,
+    salt: doc.id,
+    data: data,
+    hashField: 'passwordHash',
+    legacyField: 'password',
+  )) {
     await logAttempt('admin', user, false, 'bad_password');
     throw Exception('Invalid username or password. Please try again.');
   }
 
-  await ensureFirebaseAuthSession();
+  final updates = <String, dynamic>{
+    'role': 'admin',
+    'authUid': auth.currentUser?.uid ?? '',
+    'lastLoginAt': FieldValue.serverTimestamp(),
+    'updatedAt': FieldValue.serverTimestamp(),
+  };
+  if ((data['passwordHash'] ?? '').toString().isEmpty) {
+    updates['passwordHash'] = hashSecret(pass, doc.id);
+    updates['password'] = FieldValue.delete();
+  }
+  await doc.reference.update(updates);
   await seedDefaultServicesIfMissing();
   await logAttempt('admin', user, true, '');
-  return {...data, 'uid': existing.docs.first.id, 'role': 'admin'};
+  return {...stripSecretFields(data), 'uid': doc.id, 'role': 'admin'};
 }
 
 Future<void> resetAdminPasswordDirect(
@@ -119,8 +170,6 @@ Future<void> resetAdminPasswordDirect(
   final current = currentPassword.trim();
   final next = newPassword.trim();
   final confirm = confirmPassword.trim();
-
-  debugPrint('Admin password change started for "$user".');
 
   if (user.isEmpty) throw Exception('Enter admin username first.');
   if (current.isEmpty || next.isEmpty || confirm.isEmpty) {
@@ -137,6 +186,7 @@ Future<void> resetAdminPasswordDirect(
   }
 
   try {
+    await ensureFirebaseAuthSession();
     final snap = await db
         .collection('adminAccounts')
         .where('usernameLower', isEqualTo: user)
@@ -147,27 +197,32 @@ Future<void> resetAdminPasswordDirect(
 
     final doc = snap.docs.first;
     final data = doc.data();
-    if ((data['password'] ?? '').toString() != current) {
-      debugPrint('Admin password change failed: wrong current password.');
+    if (!verifySecret(
+      value: current,
+      salt: doc.id,
+      data: data,
+      hashField: 'passwordHash',
+      legacyField: 'password',
+    )) {
       throw Exception('Current password is incorrect.');
     }
 
-    await ensureFirebaseAuthSession();
     await doc.reference
-        .update({'password': next, 'updatedAt': FieldValue.serverTimestamp()})
+        .update({
+          'passwordHash': hashSecret(next, doc.id),
+          'password': FieldValue.delete(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        })
         .timeout(const Duration(seconds: 12));
 
     if (AppSession.role == 'admin' &&
         (AppSession.uid == doc.id ||
             AppSession.name.trim().toLowerCase() == user)) {
-      AppSession.profile = {...AppSession.profile, 'password': next};
+      AppSession.profile = stripSecretFields(AppSession.profile);
     }
-    debugPrint('Admin password change completed for "$user".');
   } on TimeoutException {
-    debugPrint('Admin password change failed: timeout.');
     throw Exception('Request timed out. Check internet and try again.');
   } on FirebaseException catch (e) {
-    debugPrint('Admin password change failed: ${e.code}.');
     if (e.code == 'unavailable' || e.code == 'deadline-exceeded') {
       throw Exception('No internet connection. Please try again.');
     }
@@ -191,12 +246,9 @@ Future<void> forgotAdminPasswordDirect(
   final next = newPassword.trim();
   final confirm = confirmPassword.trim();
 
-  debugPrint('Admin forgot password reset started for "$user".');
-
-  if (secret.isEmpty) throw Exception('Secret word is required.');
-  if (secret != 'hospital') {
-    debugPrint('Admin forgot password reset failed: wrong secret word.');
-    throw Exception('Secret word is incorrect.');
+  if (secret.isEmpty) throw Exception('Recovery phrase is required.');
+  if (_recoverySecret.isEmpty) {
+    throw Exception('Admin recovery is not configured. Contact system owner.');
   }
   if (next.isEmpty || confirm.isEmpty) {
     throw Exception('New password and confirm password are required.');
@@ -210,40 +262,42 @@ Future<void> forgotAdminPasswordDirect(
 
   try {
     await ensureFirebaseAuthSession();
-    final admins = db.collection('adminAccounts');
-    final snap = await admins
+    final snap = await db
+        .collection('adminAccounts')
         .where('usernameLower', isEqualTo: user)
         .limit(1)
         .get()
         .timeout(const Duration(seconds: 12));
+    if (snap.docs.isEmpty) throw Exception('Admin account not found.');
 
-    final data = {
-      'uid': user,
-      'username': user,
-      'usernameLower': user,
-      'password': next,
-      'securityQuestion': 'Your favourite place?',
-      'securityAnswer': 'hospital',
-      'updatedAt': FieldValue.serverTimestamp(),
+    final doc = snap.docs.first;
+    final data = doc.data();
+    final storedRecovery = data['securityAnswerHash']?.toString() ?? '';
+    final acceptedHashes = {
+      if (storedRecovery.isNotEmpty) storedRecovery,
+      hashSecret(_recoverySecret, '${doc.id}-recovery'),
+      hashSecret(_recoverySecret, 'admin-recovery'),
     };
-
-    if (snap.docs.isEmpty) {
-      await admins
-          .doc(user)
-          .set({...data, 'createdAt': FieldValue.serverTimestamp()})
-          .timeout(const Duration(seconds: 12));
-    } else {
-      await snap.docs.first.reference
-          .update(data)
-          .timeout(const Duration(seconds: 12));
+    final submittedHashes = {
+      hashSecret(secret, '${doc.id}-recovery'),
+      hashSecret(secret, 'admin-recovery'),
+    };
+    if (!submittedHashes.any(acceptedHashes.contains)) {
+      throw Exception('Recovery phrase is incorrect.');
     }
 
-    debugPrint('Admin forgot password reset completed for "$user".');
+    await doc.reference
+        .update({
+          'passwordHash': hashSecret(next, doc.id),
+          'password': FieldValue.delete(),
+          'securityAnswer': FieldValue.delete(),
+          'recoveryConfigured': true,
+          'updatedAt': FieldValue.serverTimestamp(),
+        })
+        .timeout(const Duration(seconds: 12));
   } on TimeoutException {
-    debugPrint('Admin forgot password reset failed: timeout.');
     throw Exception('Request timed out. Check internet and try again.');
   } on FirebaseException catch (e) {
-    debugPrint('Admin forgot password reset failed: ${e.code}.');
     if (e.code == 'unavailable' || e.code == 'deadline-exceeded') {
       throw Exception('No internet connection. Please try again.');
     }
@@ -259,22 +313,45 @@ Future<Map<String, dynamic>> staffLoginDirect(
   String password,
 ) async {
   final user = username.trim().toLowerCase();
+  final pass = password.trim();
+  if (user.isEmpty || pass.isEmpty) {
+    throw Exception('Enter username and password.');
+  }
+  await ensureFirebaseAuthSession();
   final snap = await db
       .collection('staff')
       .where('usernameLower', isEqualTo: user)
       .where('active', isEqualTo: true)
       .limit(1)
-      .get();
+      .get()
+      .timeout(const Duration(seconds: 12));
   if (snap.docs.isEmpty) {
     await logAttempt('staff', user, false, 'not_found_or_disabled');
     throw Exception('Invalid username or password.');
   }
-  final data = snap.docs.first.data();
-  if ((data['password'] ?? '') != password.trim()) {
+  final doc = snap.docs.first;
+  final data = doc.data();
+  if (!verifySecret(
+    value: pass,
+    salt: doc.id,
+    data: data,
+    hashField: 'passwordHash',
+    legacyField: 'password',
+  )) {
     await logAttempt('staff', user, false, 'bad_password');
     throw Exception('Invalid username or password.');
   }
-  await ensureFirebaseAuthSession();
+  final updates = <String, dynamic>{
+    'role': 'staff',
+    'authUid': auth.currentUser?.uid ?? '',
+    'lastLoginAt': FieldValue.serverTimestamp(),
+    'updatedAt': FieldValue.serverTimestamp(),
+  };
+  if ((data['passwordHash'] ?? '').toString().isEmpty) {
+    updates['passwordHash'] = hashSecret(pass, doc.id);
+    updates['password'] = FieldValue.delete();
+  }
+  await doc.reference.update(updates);
   await logAttempt('staff', user, true, '');
-  return {...data, 'uid': snap.docs.first.id, 'role': 'staff'};
+  return {...stripSecretFields(data), 'uid': doc.id, 'role': 'staff'};
 }

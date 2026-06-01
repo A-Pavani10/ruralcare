@@ -10,7 +10,7 @@ class _AdminHomeState extends State<AdminHome> {
   int i = 0;
   @override
   Widget build(BuildContext c) => shell(
-    'Admin Dashboard',
+    'APV Hospital Admin',
     i,
     (v) {
       if (!mounted) return;

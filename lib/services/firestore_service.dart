@@ -38,7 +38,10 @@ Future<void> saveStaffDirect(Map<String, String> data, {String? id}) async {
     'updatedAt': FieldValue.serverTimestamp(),
   };
   final password = (data['password'] ?? '').trim();
-  if (password.isNotEmpty) payload['password'] = password;
+  if (password.isNotEmpty) {
+    payload['passwordHash'] = hashSecret(password, docId);
+    payload['password'] = FieldValue.delete();
+  }
   if (id == null) payload['createdAt'] = FieldValue.serverTimestamp();
   await db.collection('staff').doc(docId).set(payload, SetOptions(merge: true));
 }

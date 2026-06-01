@@ -38,6 +38,31 @@ Widget requestCard(
               icon: const Icon(Icons.check),
               label: const Text('Mark completed'),
             ),
+          if (AppSession.role == 'patient' &&
+              (x['patientUid'] ?? '') == activePatientUid())
+            Wrap(
+              spacing: 8,
+              children: [
+                if (['Pending', 'Alternate Proposed'].contains(x['status']))
+                  OutlinedButton.icon(
+                    onPressed: () =>
+                        runBusy(c, () => cancelRequestDirect(d.id)),
+                    icon: const Icon(Icons.cancel),
+                    label: const Text('Cancel'),
+                  ),
+                if ([
+                  'Rejected',
+                  'Cancelled',
+                  'Completed',
+                ].contains(x['status']))
+                  OutlinedButton.icon(
+                    onPressed: () =>
+                        runBusy(c, () => rebookRequestDirect(d.id)),
+                    icon: const Icon(Icons.replay),
+                    label: const Text('Rebook'),
+                  ),
+              ],
+            ),
         ],
       ),
     ),

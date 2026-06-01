@@ -25,12 +25,19 @@ class SplashScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             const Text(
-              'RuralCare Hospital',
+              'Anantapuram Praja Vaidyasala',
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ),
             const Text(
-              'Healthcare at home for rural families\nVillage Health Road | +91 90000 00000',
+              'RuralCare powered by Anantapuram Praja Vaidyasala\nKamalanagar, Anantapur, Andhra Pradesh',
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Healthcare services managed by APV Hospital. Not for emergencies.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 28),
             FilledButton.icon(

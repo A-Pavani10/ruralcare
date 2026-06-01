@@ -129,7 +129,7 @@ Future<void> forgotAdminPasswordDialog(BuildContext c, String username) async {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(controller: secret, decoration: dec('Secret word')),
+          TextField(controller: secret, decoration: dec('Recovery phrase')),
           const SizedBox(height: 10),
           TextField(
             controller: pass,

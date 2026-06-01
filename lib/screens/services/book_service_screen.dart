@@ -115,7 +115,7 @@ class _BookServiceState extends State<BookService> {
             .where('active', isEqualTo: true)
             .snapshots(),
         builder: (_, s) => DropdownButtonFormField<String>(
-          decoration: dec('Service'),
+          decoration: dec('APV Hospital service'),
           value: serviceId,
           items: (s.data?.docs ?? []).map((d) {
             final x = d.data() as Map<String, dynamic>;
@@ -136,7 +136,11 @@ class _BookServiceState extends State<BookService> {
         ),
       ),
       ListTile(
-        title: Text(at == null ? 'Preferred date/time' : fmt.format(at!)),
+        title: Text(
+          at == null
+              ? 'Preferred APV Hospital service date/time'
+              : fmt.format(at!),
+        ),
         trailing: const Icon(Icons.calendar_month),
         onTap: () async {
           if (!context.mounted) return;
@@ -161,7 +165,10 @@ class _BookServiceState extends State<BookService> {
             );
         },
       ),
-      FilledButton(onPressed: submit, child: const Text('Review and submit')),
+      FilledButton(
+        onPressed: submit,
+        child: const Text('Review and submit to APV Hospital'),
+      ),
     ],
   );
 }

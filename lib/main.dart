@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -11,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 part 'app/app.dart';
 part 'app/routes.dart';
 part 'app/theme.dart';
+part 'core/utils/security.dart';
 part 'core/utils/session.dart';
 part 'core/utils/ui_helpers.dart';
 part 'core/common_widgets/common_widgets.dart';
@@ -44,6 +47,10 @@ part 'screens/requests/request_monitor_screen.dart';
 part 'screens/notifications/notifications_screen.dart';
 
 const green = Color(0xFF16794F);
+const hospitalId = 'APV001';
+const hospitalName = 'Anantapuram Praja Vaidyasala';
+const hospitalShortName = 'APV Hospital';
+const hospitalLocation = 'Kamalanagar, Anantapur, Andhra Pradesh, India';
 final db = FirebaseFirestore.instance;
 final auth = FirebaseAuth.instance;
 final fmt = DateFormat('dd/MM/yyyy HH:mm');
@@ -51,6 +58,7 @@ final fmt = DateFormat('dd/MM/yyyy HH:mm');
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await seedDefaultHospitalIfMissing();
   await seedDefaultAdminIfMissing();
   await seedDefaultServicesIfMissing();
   runApp(const RuralCareApp());

@@ -8,8 +8,9 @@ class PatientLogin extends StatefulWidget {
 
 class _PatientLoginState extends State<PatientLogin> {
   final phone = TextEditingController(), pin = TextEditingController();
-  String get mobileDigits => phone.text.trim().replaceAll(RegExp(r'\D'), '');
+  String get mobileDigits => normalizeMobileDigits(phone.text);
   String get e164 => '+91$mobileDigits';
+  String get mobileKey => mobileKeyFromDigits(mobileDigits);
   @override
   void dispose() {
     phone.dispose();
@@ -26,26 +27,45 @@ class _PatientLoginState extends State<PatientLogin> {
     }
     await ensureFirebaseAuthSession();
     if (!mounted) return;
-    final existing = await db
-        .collection('patients')
-        .where('mobile', isEqualTo: e164)
-        .limit(1)
-        .get();
+    final lookup = await db.collection('patientMobiles').doc(mobileKey).get();
     if (!mounted) return;
-    if (existing.docs.isEmpty)
+    if (!lookup.exists)
       return toast(context, 'No account found. Please register.');
-    final data = existing.docs.first.data();
-    if ((data['pin'] ?? '') != pin.text.trim()) {
+    final patientUid = lookup.data()?['patientUid']?.toString() ?? '';
+    if (patientUid.isEmpty) {
+      return toast(context, 'Account lookup failed. Please contact support.');
+    }
+    final doc = await db.collection('patients').doc(patientUid).get();
+    if (!mounted) return;
+    if (!doc.exists || doc.data() == null) {
+      return toast(context, 'No account found. Please register.');
+    }
+    final data = doc.data()!;
+    final ok = verifySecret(
+      value: pin.text.trim(),
+      salt: mobileKey,
+      data: data,
+      hashField: 'pinHash',
+      legacyField: 'pin',
+    );
+    if (!ok) {
       toast(context, 'Invalid mobile number or PIN.');
       return;
     }
+    if ((data['pinHash'] ?? '').toString().isEmpty) {
+      await doc.reference.update({
+        'pinHash': hashSecret(pin.text.trim(), mobileKey),
+        'pin': FieldValue.delete(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
     AppSession.set(
       newRole: 'patient',
-      newUid: existing.docs.first.id,
+      newUid: doc.id,
       newName: data['fullName'] ?? 'Patient',
-      newProfile: data,
+      newProfile: stripSecretFields(data),
     );
-    if (!context.mounted) return;
+    if (!mounted) return;
     Navigator.pushAndRemoveUntil(
       context,
       page(const PatientHome()),

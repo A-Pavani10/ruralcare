@@ -1,5 +1,5 @@
 ﻿name: ruralcare
-version: 1.0.0+1
+version: 1.0.1+2
 publish_to: 'none'
 description: RuralCare healthcare-at-home mobile application.
 
@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cloud_firestore: ^4.17.0
+  crypto: ^3.0.3
   cupertino_icons: ^1.0.8
   firebase_auth: ^4.19.0
   firebase_core: ^2.30.0

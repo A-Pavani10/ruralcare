@@ -11,7 +11,7 @@ class _StaffHomeState extends State<StaffHome> {
   int i = 0;
   @override
   Widget build(BuildContext c) => shell(
-    widget.profile['fullName'] ?? 'Staff',
+    '${widget.profile['fullName'] ?? 'Staff'} - APV Hospital',
     i,
     (v) {
       if (!mounted) return;

@@ -10,7 +10,7 @@ class _PatientHomeState extends State<PatientHome> {
   int i = 0;
   @override
   Widget build(BuildContext c) => shell(
-    'Patient Dashboard',
+    'APV Hospital Patient',
     i,
     (v) {
       if (!mounted) return;

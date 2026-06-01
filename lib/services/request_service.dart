@@ -40,8 +40,9 @@ Future<void> createRequestDirect(Map<String, dynamic> payload) async {
     batch.set(db.collection('notifications').doc(), {
       'userUid': doc.id,
       'role': 'staff',
-      'title': 'New service request',
-      'body': '${request['patientName']} requested ${request['serviceName']}',
+      'title': 'New APV Hospital service request',
+      'body':
+          '${request['patientName']} requested ${request['serviceName']} via APV Hospital',
       'requestId': ref.id,
       'read': false,
       'createdAt': FieldValue.serverTimestamp(),
@@ -77,7 +78,7 @@ Future<void> acceptRequestDirect(String requestId) async {
       req['patientUid'],
       'patient',
       'Request Accepted',
-      '${req['serviceName']} accepted by ${AppSession.name}',
+      '${req['serviceName']} accepted by ${AppSession.name} from APV Hospital',
       requestId,
     );
   }
@@ -100,7 +101,7 @@ Future<void> rejectRequestDirect(String requestId, String reason) async {
       req['patientUid'],
       'patient',
       'Request Rejected',
-      '${req['serviceName']} rejected: $reason',
+      '${req['serviceName']} rejected by APV Hospital: $reason',
       requestId,
     );
   }
@@ -126,7 +127,7 @@ Future<void> proposeTimeDirect(
       req['patientUid'],
       'patient',
       'Alternate Time Proposed',
-      '${req['serviceName']}: alternate time proposed',
+      '${req['serviceName']}: APV Hospital proposed an alternate time',
       requestId,
     );
   }
@@ -147,8 +148,60 @@ Future<void> completeRequestDirect(String requestId) async {
       req['patientUid'],
       'patient',
       'Request Completed',
-      '${req['serviceName']} completed',
+      '${req['serviceName']} completed by APV Hospital',
       requestId,
     );
   }
+}
+
+Future<void> cancelRequestDirect(String requestId) async {
+  final ref = db.collection('requests').doc(requestId);
+  await db.runTransaction((tx) async {
+    final snap = await tx.get(ref);
+    final data = snap.data();
+    if (data == null) throw Exception('Request not found.');
+    if ((data['patientUid'] ?? '') != activePatientUid()) {
+      throw Exception('You can cancel only your own request.');
+    }
+    if (!['Pending', 'Alternate Proposed'].contains(data['status'])) {
+      throw Exception('Only open requests can be cancelled.');
+    }
+    tx.update(ref, {
+      'status': 'Cancelled',
+      'claimed': false,
+      'cancelledAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  });
+}
+
+Future<void> rebookRequestDirect(String requestId) async {
+  final ref = db.collection('requests').doc(requestId);
+  final snap = await ref.get();
+  final data = snap.data();
+  if (data == null) throw Exception('Request not found.');
+  if ((data['patientUid'] ?? '') != activePatientUid()) {
+    throw Exception('You can rebook only your own request.');
+  }
+  final copy = Map<String, dynamic>.from(data);
+  copy.remove('acceptedAt');
+  copy.remove('rejectedAt');
+  copy.remove('cancelledAt');
+  copy.remove('completedAt');
+  copy.addAll({
+    'status': 'Pending',
+    'claimed': false,
+    'assignedStaffUid': '',
+    'assignedStaffName': '',
+    'assignedStaffMobile': '',
+    'rejectionReason': '',
+    'proposedAt': null,
+    'proposedMessage': '',
+    'completedByUid': '',
+    'completedByName': '',
+    'rebookedFrom': requestId,
+    'createdAt': Timestamp.now(),
+    'updatedAt': Timestamp.now(),
+  });
+  await createRequestDirect(copy);
 }

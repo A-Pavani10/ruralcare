@@ -16,8 +16,10 @@ class _PatientRegisterState extends State<PatientRegister> {
       pin = TextEditingController(),
       confirmPin = TextEditingController();
   String gender = 'Male', blood = 'O+';
-  String get mobileDigits => mob.text.trim().replaceAll(RegExp(r'\D'), '');
+  bool consentAccepted = false;
+  String get mobileDigits => normalizeMobileDigits(mob.text);
   String get e164 => '+91$mobileDigits';
+  String get mobileKey => mobileKeyFromDigits(mobileDigits);
   @override
   void dispose() {
     for (final c in [full, mob, aad, addr, email, dob, pin, confirmPin]) {
@@ -38,6 +40,9 @@ class _PatientRegisterState extends State<PatientRegister> {
     if (addr.text.trim().isEmpty) return 'Address is required.';
     if (gender.trim().isEmpty) return 'Gender is required.';
     if (blood.trim().isEmpty) return 'Blood group is required.';
+    if (!consentAccepted) {
+      return 'Please accept the privacy and medical disclaimer.';
+    }
     if (!RegExp(r'^\d{4}$').hasMatch(pin.text.trim())) {
       return 'PIN must be exactly 4 digits.';
     }
@@ -52,33 +57,57 @@ class _PatientRegisterState extends State<PatientRegister> {
     if (validationError != null) return toast(context, validationError);
     await ensureFirebaseAuthSession();
     if (!mounted) return;
-    final dup = await db
-        .collection('patients')
-        .where('mobile', isEqualTo: e164)
-        .limit(1)
-        .get();
-    if (!mounted) return;
-    if (dup.docs.isNotEmpty)
-      return toast(context, 'Mobile already registered. Please login.');
     final user = auth.currentUser;
     if (user == null) return;
+    String? fcmToken;
+    try {
+      fcmToken = await FirebaseMessaging.instance.getToken();
+    } catch (_) {
+      fcmToken = null;
+    }
     final data = {
       'uid': user.uid,
       'fullName': full.text.trim(),
       'mobile': e164,
+      'mobileKey': mobileKey,
       'gender': gender,
       'dob': dob.text,
       'aadhaarMasked': '********${aad.text.trim().substring(8)}',
-      'aadhaarCipherText': aad.text.trim(),
+      'aadhaarLast4': aad.text.trim().substring(8),
       'address': addr.text.trim(),
       'bloodGroup': blood,
       'email': email.text.trim(),
-      'pin': pin.text.trim(),
-      'fcmToken': await FirebaseMessaging.instance.getToken(),
+      'pinHash': hashSecret(pin.text.trim(), mobileKey),
+      'consentAccepted': true,
+      'consentText':
+          'Accepted RuralCare/APV Hospital privacy and non-emergency medical disclaimer.',
+      'fcmToken': fcmToken,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
-    await db.collection('patients').doc(user.uid).set(data);
+    try {
+      await db
+          .runTransaction((tx) async {
+            final mobileRef = db.collection('patientMobiles').doc(mobileKey);
+            final existing = await tx.get(mobileRef);
+            if (existing.exists) {
+              throw Exception('Mobile already registered. Please login.');
+            }
+            tx.set(db.collection('patients').doc(user.uid), data);
+            tx.set(mobileRef, {
+              'patientUid': user.uid,
+              'mobile': e164,
+              'createdAt': FieldValue.serverTimestamp(),
+            });
+          })
+          .timeout(const Duration(seconds: 15));
+    } on TimeoutException {
+      if (!mounted) return;
+      return toast(context, 'Request timed out. Check internet and try again.');
+    } catch (e) {
+      if (!mounted) return;
+      return toast(context, friendlyError(e));
+    }
     if (!mounted) return;
     AppSession.set(
       newRole: 'patient',
@@ -137,6 +166,18 @@ class _PatientRegisterState extends State<PatientRegister> {
       },
     ),
     TextField(controller: email, decoration: dec('Email optional')),
+    CheckboxListTile(
+      value: consentAccepted,
+      onChanged: (v) {
+        if (!mounted) return;
+        setState(() => consentAccepted = v ?? false);
+      },
+      title: const Text('I agree to privacy and medical disclaimer'),
+      subtitle: const Text(
+        'APV Hospital stores my health details for service delivery only. This app is not for emergencies.',
+      ),
+      controlAffinity: ListTileControlAffinity.leading,
+    ),
     TextField(
       controller: pin,
       keyboardType: TextInputType.number,

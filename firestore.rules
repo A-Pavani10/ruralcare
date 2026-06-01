@@ -5,45 +5,93 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Spark-plan demo login collections.
-    // Admin/staff credentials are checked directly from Firestore for this
-    // internship/demo build, so login screens must be able to read them before
-    // an authenticated app session exists.
+    function adminDoc() {
+      return get(/databases/$(database)/documents/adminAccounts/admin);
+    }
+
+    function isAdmin() {
+      return signedIn() &&
+        adminDoc().data.authUid == request.auth.uid;
+    }
+
+    function isStaff(staffId) {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/staff/$(staffId)) &&
+        get(/databases/$(database)/documents/staff/$(staffId)).data.authUid == request.auth.uid;
+    }
+
+    function ownsPatient(patientId) {
+      return signedIn() && patientId == request.auth.uid;
+    }
+
+    // Login records no longer store plaintext credentials, but the current
+    // client-only login flow still needs signed-in anonymous sessions to read
+    // credential hashes. A backend/custom-claims auth layer is required before
+    // making these admin-only.
     match /adminAccounts/{adminId} {
-      allow read, create, update: if true;
-      allow delete: if signedIn();
+      allow read: if signedIn();
+      allow create: if signedIn() && adminId == 'admin';
+      allow update: if signedIn();
+      allow delete: if false;
     }
 
     match /staff/{staffId} {
-      allow read: if true;
+      allow read: if signedIn();
       allow create, update, delete: if signedIn();
     }
 
-    match /services/{serviceId} {
-      allow read, create: if true;
-      allow update, delete: if signedIn();
+    match /patientMobiles/{mobileKey} {
+      allow get: if signedIn();
+      allow create: if signedIn() &&
+        request.resource.data.patientUid == request.auth.uid;
+      allow list, update, delete: if false;
     }
 
     match /patients/{patientId} {
-      allow read, write: if signedIn();
+      allow get: if signedIn();
+      allow list: if isAdmin();
+      allow create: if ownsPatient(patientId);
+      allow update: if ownsPatient(patientId) || isAdmin();
+      allow delete: if false;
+    }
+
+    match /services/{serviceId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /hospitals/{hospitalId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && hospitalId == 'APV001';
+      allow update: if isAdmin();
+      allow delete: if false;
     }
 
     match /requests/{requestId} {
-      allow read, write: if signedIn();
+      allow read: if signedIn();
+      allow create: if signedIn() &&
+        request.resource.data.patientUid == request.auth.uid;
+      allow update: if signedIn();
+      allow delete: if false;
     }
 
     match /notifications/{notificationId} {
-      allow read, write: if signedIn();
+      allow read: if signedIn() &&
+        (resource.data.userUid == request.auth.uid || isAdmin());
+      allow create: if signedIn();
+      allow update: if signedIn() &&
+        (resource.data.userUid == request.auth.uid || isAdmin());
+      allow delete: if false;
     }
 
     match /loginAttempts/{logId} {
-      allow read, write: if signedIn();
+      allow create: if signedIn();
+      allow read: if isAdmin();
+      allow update, delete: if false;
     }
 
-    // Remaining app data requires Firebase Auth. Patients and admin/staff use
-    // anonymous auth sessions in this Spark-plan demo.
     match /{document=**} {
-      allow read, write: if signedIn();
+      allow read, write: if false;
     }
   }
 }

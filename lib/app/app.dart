@@ -89,7 +89,7 @@ const labels = {
     'start': 'शुरू करें',
     'language': 'भाषा चुनें',
     'role': 'आप कौन हैं?',
-    'patient': 'मरीज',
+    'patient': 'मरीज़',
     'staff': 'स्टाफ',
     'admin': 'एडमिन',
     'login': 'लॉगिन',
